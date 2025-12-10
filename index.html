@@ -93,9 +93,14 @@
         .msg-copy-icon { margin-left: 8px; font-size: 12px; opacity: 0.5; cursor: pointer; color: white; transition: 0.2s; }
         .msg-copy-icon:hover { opacity: 1; transform: scale(1.1); }
 
+        /* --- NEW: INTERNET CHECK OVERLAY --- */
+        #offline-warning-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98); z-index: 20001; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #ef4444; backdrop-filter: blur(5px); }
+        .offline-icon { font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite; }
+        
         #dev-surveillance-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.98); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #ef4444; pointer-events: auto; cursor: not-allowed; user-select: none; }
         .pulse-text { animation: pulse 1.5s infinite; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; border: 2px solid #ef4444; padding: 20px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); max-width: 80%; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
         @keyframes pulse { 0% { opacity: 0.8; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); transform: scale(1); } 50% { transform: scale(1.05); } 70% { opacity: 1; box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); } 100% { opacity: 0.8; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); transform: scale(1); } }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
 
         @media (max-width: 768px) {
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 280px; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
@@ -123,6 +128,13 @@
 <body>
     <div id="toast-box"></div>
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- INTERNET CHECK OVERLAY (Added) -->
+    <div id="offline-warning-overlay">
+        <i class="fas fa-wifi-slash offline-icon"></i>
+        <h2 style="margin: 0; color: white;">NO INTERNET CONNECTION</h2>
+        <p style="color: #94a3b8; margin-top: 10px;">Please check your network settings to use the Admin Panel.</p>
+    </div>
 
     <!-- SURVEILLANCE OVERLAY -->
     <div id="dev-surveillance-overlay">
@@ -351,7 +363,7 @@
     </div>
 
     <!-- Other Modals -->
-    <div id="service-modal" class="modal-overlay"><div class="modal-box"><h3>Service Details</h3><label class="info-label">Service Name</label><input id="svc-name" class="modal-inp"><label class="info-label">Category</label><select id="svc-cat" class="modal-inp"></select><label class="info-label">Key</label><input id="svc-key" class="modal-inp"><label class="info-label">Price</label><input id="svc-price" type="number" class="modal-inp"><label class="info-label">Icon</label><input id="svc-icon" class="modal-inp"><button onclick="saveService()" class="btn bg-grn" style="width:100%; margin-top:15px;">SAVE SERVICE</button><button onclick="document.getElementById('service-modal').style.display='none'" class="btn bg-dark" style="width:100%; margin-top:5px;">Cancel</button></div></div>
+    <div id="service-modal" class="modal-overlay"><div class="modal-box"><h3>Service Details</h3><label class="info-label">Service Name</label><input id="svc-name" class="modal-inp"><label class="info-label">Service Name</label><input id="svc-name" class="modal-inp"><label class="info-label">Category</label><select id="svc-cat" class="modal-inp"></select><label class="info-label">Key</label><input id="svc-key" class="modal-inp"><label class="info-label">Price</label><input id="svc-price" type="number" class="modal-inp"><label class="info-label">Icon</label><input id="svc-icon" class="modal-inp"><button onclick="saveService()" class="btn bg-grn" style="width:100%; margin-top:15px;">SAVE SERVICE</button><button onclick="document.getElementById('service-modal').style.display='none'" class="btn bg-dark" style="width:100%; margin-top:5px;">Cancel</button></div></div>
     <div id="form-editor-modal" class="modal-overlay"><div class="modal-box" style="width: 100%; max-width:700px; height: 90vh; display:flex; flex-direction:column;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">Dynamic Form Builder</h3><button onclick="document.getElementById('form-editor-modal').style.display='none'" class="btn bg-red" style="padding:5px 10px;">✕</button></div><div style="margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:15px;"><label class="info-label">Select Service</label><select id="fe-service-select" class="modal-inp" onchange="loadServiceForm(this.value)"><option value="" disabled selected>Select a Service...</option></select></div><div id="fe-fields-container" style="flex:1; overflow-y:auto; padding-right:5px;"></div><div style="margin-top:15px; border-top:1px solid var(--border); padding-top:15px;"><button class="btn bg-blu" onclick="addFormRow()">+ Add Field</button><button class="btn bg-grn" onclick="saveFormConfig()" style="float:right;">Save Form</button></div></div></div>
     <div id="chat-modal" class="modal-overlay"><div class="modal-box" style="padding:0; width:100%; max-width:550px; height:85vh; display:flex; flex-direction:column; overflow:hidden;"><div style="padding:20px; background:var(--primary); display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:600; color:white;">Support Chat</span><button onclick="document.getElementById('chat-modal').style.display='none'" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;"><i class="fas fa-times"></i></button></div><div id="chat-msgs" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px;"></div><div class="quick-replies-wrapper" id="qr-container"></div><button id="btn-manage-qr" onclick="openQrManager()" style="display:none; width:100%; background:var(--bg-card); color:var(--text-muted); border:none; padding:5px; font-size:10px; border-top:1px solid var(--border);">Manage Quick Replies</button><div style="padding:20px; border-top:1px solid var(--border); display:flex; gap:10px; background:var(--bg-card);"><input id="chat-in" class="modal-inp" style="margin:0;" placeholder="Type message..."><button onclick="sendRep()" class="btn bg-blu" style="width:50px; justify-content:center;"><i class="fas fa-paper-plane"></i></button></div></div></div>
     <div id="qr-manager-modal" class="modal-overlay"><div class="modal-box"><h3>Manage Quick Replies</h3><div style="display:flex; gap:10px; margin-bottom:15px;"><input id="new-qr-inp" class="modal-inp" placeholder="New Reply Text" style="margin:0;"><button onclick="addQr()" class="btn bg-grn">Add</button></div><div id="qr-list-edit" style="display:flex; flex-direction:column; gap:8px; max-height:300px; overflow-y:auto;"></div><button onclick="document.getElementById('qr-manager-modal').style.display='none'" class="btn bg-dark" style="width:100%; margin-top:15px;">Close</button></div></div>
@@ -366,7 +378,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        // ADDED sendPasswordResetEmail here
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, inMemoryPersistence, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
         import { getDatabase, ref, onValue, update, set, get, push, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
@@ -378,6 +389,10 @@
 
         const db = getDatabase(app);
         
+        // --- DISABLE AUTO LOGIN (Force Logout on Refresh) ---
+        signOut(auth).catch(e => console.log(e));
+        sessionStorage.clear();
+
         // --- 7 FIXED ROLES DEFINED HERE ---
         const fixedRoles = ["HELIX PANEL", "Developer", "Moderator 1", "Moderator 2", "Moderator 3", "Moderator 4", "Moderator 5"];
 
@@ -404,6 +419,19 @@
         function resetSessionTimer() { clearTimeout(sessionTimer); if(auth.currentUser) { sessionTimer = setTimeout(() => { alert("Session Timeout: You have been logged out due to inactivity."); window.logout(); }, TIMEOUT_DURATION); } }
         ['mousemove', 'mousedown', 'keypress', 'touchmove', 'click'].forEach(evt => { document.addEventListener(evt, resetSessionTimer); });
 
+        // --- INTERNET CONNECTION CHECKER ---
+        function checkNetworkStatus() {
+            const overlay = document.getElementById('offline-warning-overlay');
+            if(navigator.onLine) {
+                overlay.style.display = 'none';
+            } else {
+                overlay.style.display = 'flex';
+            }
+        }
+        window.addEventListener('online', checkNetworkStatus);
+        window.addEventListener('offline', checkNetworkStatus);
+        checkNetworkStatus();
+
         function updateAdminDisplay() {
             const label = document.getElementById('curr-adm-display');
             const isSuperOrDev = (currentAdminName === 'HELIX PANEL' || currentAdminName === 'Developer');
@@ -420,6 +448,12 @@
 
         // --- LOGIN LOGIC ---
         window.admLog = async () => { 
+            // Check Internet Connection
+            if (!navigator.onLine) {
+                showToast("No Internet Connection! Please connect to login.", "error");
+                return;
+            }
+
             const btn = document.getElementById('adm-login-btn'); 
             const e = document.getElementById('ae').value; 
             const p = document.getElementById('ap').value; 
