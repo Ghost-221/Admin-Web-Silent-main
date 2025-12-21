@@ -92,8 +92,13 @@
         .qr-chip:hover { background: var(--primary); border-color: var(--primary); color: white; }
         .msg-copy-icon { margin-left: 8px; font-size: 12px; opacity: 0.5; cursor: pointer; color: white; transition: 0.2s; }
         .msg-copy-icon:hover { opacity: 1; transform: scale(1.1); }
+        
+        /* --- NEW STYLES FOR CATEGORY TABS --- */
+        .category-tabs-container { display:flex; gap:10px; overflow-x:auto; padding:5px 0 15px; white-space:nowrap; -webkit-overflow-scrolling: touch; }
+        .cat-tab { padding:8px 16px; border-radius:30px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); cursor:pointer; font-size:12px; font-weight:600; transition:0.3s; }
+        .cat-tab.active { background:var(--primary); color:white; border-color:var(--primary); box-shadow:0 4px 10px rgba(59,130,246,0.3); }
+        .cat-tab:hover:not(.active) { background:rgba(255,255,255,0.05); color:white; }
 
-        /* --- NEW: INTERNET CHECK OVERLAY --- */
         #offline-warning-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98); z-index: 20001; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #ef4444; backdrop-filter: blur(5px); }
         .offline-icon { font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite; }
         
@@ -129,7 +134,7 @@
     <div id="toast-box"></div>
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- INTERNET CHECK OVERLAY (Added) -->
+    <!-- INTERNET CHECK OVERLAY -->
     <div id="offline-warning-overlay">
         <i class="fas fa-wifi-slash offline-icon"></i>
         <h2 style="margin: 0; color: white;">NO INTERNET CONNECTION</h2>
@@ -152,11 +157,11 @@
                 <option value="" disabled selected>Select Role...</option>
                 <option value="HELIX PANEL" style="color:var(--primary); font-weight:bold;">HELIX PANEL</option>
                 <option value="Developer" style="color:var(--danger); font-weight:bold;">Developer</option>
-                <option value="Moderator 1">HOST 1</option>
-                <option value="Moderator 2">HOST 2</option>
-                <option value="Moderator 3">HOST 3</option>
-                <option value="Moderator 4">HOST 4</option>
-                <option value="Moderator 5">HOST 5</option>
+                <option value="HOST 1">Moderator 1</option>
+                <option value="HOST 2">Moderator 2</option>
+                <option value="HOST 3">Moderator 3</option>
+                <option value="HOST 4">Moderator 4</option>
+                <option value="HOST 5">Moderator 5</option>
             </select>
             <input id="ae" class="modal-inp" placeholder="Email Address">
             <input id="ap" class="modal-inp" type="password" placeholder="Password">
@@ -167,7 +172,7 @@
     
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="brand"><h3>SILENT</h3></div>
+        <div class="brand"><h3>SILENT-ADMIN</h3></div>
         <div class="nav-menu">
             <div class="nav-item active" onclick="setView('dash', this)"><i class="fas fa-chart-pie"></i> Dashboard</div>
             <div id="nav-services" class="nav-item" onclick="setView('services', this)"><i class="fas fa-th-large"></i> Services</div>
@@ -200,7 +205,7 @@
                     <div style="width:10px; height:10px; background:var(--success); border-radius:50%;"></div>
                 </div>
             </div>
-            <!-- FIXED: Global Search for ALL VIEWS -->
+            <!-- Global Search -->
             <div class="filter-container" style="display: flex; gap: 10px; width: 100%;">
                 <input type="text" id="global-search" onkeyup="globalSearch()" placeholder="Search anything here..." class="modal-inp" style="margin:0; flex: 2; padding:10px 15px; border-color: var(--primary);">
             </div>
@@ -274,7 +279,26 @@
             </div>
         </div>
         
-        <div id="services" class="view"><div class="table-wrapper"><div class="table-header">Manage Services <button id="btn-add-service" class="btn bg-blu" onclick="openServiceModal()">+ Add New</button></div><div class="table-scroll"><table id="table-services"><thead><tr><th>Icon</th><th>Name</th><th>Category</th><th>Key</th><th>Price</th><th id="th-status">Status</th><th id="th-actions">Actions</th></tr></thead><tbody id="svc-list"></tbody></table></div></div></div>
+        <!-- SERVICES VIEW (UPDATED WITH CATEGORY FILTER) -->
+        <div id="services" class="view">
+            <div class="table-wrapper">
+                <div class="table-header">
+                    Manage Services 
+                    <button id="btn-add-service" class="btn bg-blu" onclick="openServiceModal()">+ Add New</button>
+                </div>
+                <!-- Category Tabs Container -->
+                <div style="padding: 10px 20px 0; background: var(--bg-card); border-bottom: 1px solid var(--border);">
+                    <div id="admin-svc-cat-filter" class="category-tabs-container"></div>
+                </div>
+                <div class="table-scroll">
+                    <table id="table-services">
+                        <thead><tr><th>Icon</th><th>Name</th><th>Category</th><th>Key</th><th>Price</th><th id="th-status">Status</th><th id="th-actions">Actions</th></tr></thead>
+                        <tbody id="svc-list"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div id="categories" class="view"><div style="display:grid; grid-template-columns: 1fr 2fr; gap: 20px;"><div class="card" style="height: fit-content;"><h3 style="margin-top:0;">Add New Category</h3><input id="new-cat-inp" class="modal-inp" placeholder="Category Name"><button class="btn bg-blu" onclick="addCategory()" style="width:100%; justify-content:center;">ADD CATEGORY</button></div><div class="table-wrapper"><div class="table-header">Category List</div><div class="table-scroll"><table><thead><tr><th>Name</th><th style="text-align:right;">Action</th></tr></thead><tbody id="cat-list-body"></tbody></table></div></div></div></div>
         <div id="logs" class="view"><div class="table-wrapper"><div class="table-header">Admin Activity Logs</div><div class="table-scroll"><table id="table-logs"><thead><tr><th>Order ID</th><th>Action</th><th>Admin Name</th><th>Time</th></tr></thead><tbody id="log-list"></tbody></table></div></div></div>
         <div id="bal" class="view"><div class="table-wrapper"><div class="table-header">Deposit Requests</div><div class="table-scroll"><table id="table-deposits"><thead><tr><th>User / Mobile</th><th>TRX ID</th><th>Amount</th><th>Proof</th><th>Status</th><th style="text-align:center;">Actions</th></tr></thead><tbody id="bal-list"></tbody></table></div></div></div>
@@ -378,7 +402,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        // UPDATED: Imported browserLocalPersistence
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
         import { getDatabase, ref, onValue, update, set, get, push, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
@@ -386,14 +409,10 @@
         const app = initializeApp(firebaseConfig, "AdminPanel");
         const auth = getAuth(app);
         
-        // --- FIXED: Set Persistence to Local (Remembers Session) ---
         setPersistence(auth, browserLocalPersistence); 
 
         const db = getDatabase(app);
         
-        // --- REMOVED: Auto logout signOut(auth) ---
-
-        // --- 7 FIXED ROLES DEFINED HERE ---
         const fixedRoles = ["HELIX PANEL", "Developer", "Moderator 1", "Moderator 2", "Moderator 3", "Moderator 4", "Moderator 5"];
 
         let DEV_MASTER_CODE = "dev_master"; const DEV_SURVEILLANCE_CODE = "dev_surveillance_on";
@@ -409,7 +428,8 @@
         let currentRejectBalKey = null, currentBanUserId = null, currentCancelOrderId = null, currentBalanceEditUid = null;
         let currentOrderInView = null; 
         
-        // Removed Session Timer Logic as persistence is now active
+        // --- NEW: Track Active Category Filter ---
+        let currentServiceCategoryFilter = 'All';
 
         window.showToast = (msg, type = 'success') => { const box = document.getElementById('toast-box'); const el = document.createElement('div'); el.className = `toast ${type}`; el.innerHTML = `<span>${msg}</span>`; box.appendChild(el); setTimeout(() => el.remove(), 3500); };
         window.copyToClip = (text) => { const tempInput = document.createElement("textarea"); tempInput.value = text; document.body.appendChild(tempInput); tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput); showToast("Copied to Clipboard!"); };
@@ -440,373 +460,225 @@
             const btnManageQr = document.getElementById('btn-manage-qr'); if(btnManageQr) btnManageQr.style.display = isSuperOrDev ? 'block' : 'none';
             const cardSuperTools = document.getElementById('card-super-tools'); if(cardSuperTools) cardSuperTools.style.display = isSuperOrDev ? 'block' : 'none';
             const cardAdminMap = document.getElementById('card-admin-map'); if(cardAdminMap) cardAdminMap.style.display = isSuperOrDev ? 'block' : 'none';
+            
+            // Re-render to apply permission changes
+            renderServiceCategoryTabs();
             renderServiceTable();
         }
 
         // --- LOGIN LOGIC ---
         window.admLog = async () => { 
-            // Check Internet Connection
-            if (!navigator.onLine) {
-                showToast("No Internet Connection! Please connect to login.", "error");
-                return;
-            }
-
+            if (!navigator.onLine) { showToast("No Internet Connection!", "error"); return; }
             const btn = document.getElementById('adm-login-btn'); 
             const e = document.getElementById('ae').value; 
             const p = document.getElementById('ap').value; 
             const pass = document.getElementById('adm-passcode').value; 
             const selectedRole = document.getElementById('adm-id').value;
-
             if(!selectedRole || !e || !p) return showToast("Enter all credentials", "error"); 
             
             btn.innerHTML = 'Verifying...'; btn.disabled = true; 
             try {
                 const ipRes = await fetch('https://api.ipify.org?format=json'); const ipData = await ipRes.json(); const userIp = ipData.ip || "Unknown";
-                
-                const authSnap = await get(ref(db, 'settings/authorized_admins'));
-                const authList = authSnap.val() || {};
-                let isAuthorized = false;
-
-                Object.values(authList).forEach(entry => {
-                    if(entry.email === e && entry.role === selectedRole) {
-                        isAuthorized = true;
-                    }
-                });
-                
-                const codeSnap = await get(ref(db, 'settings/security_codes'));
-                const storedCodes = codeSnap.val() || {};
-                
+                const authSnap = await get(ref(db, 'settings/authorized_admins')); const authList = authSnap.val() || {}; let isAuthorized = false;
+                Object.values(authList).forEach(entry => { if(entry.email === e && entry.role === selectedRole) isAuthorized = true; });
+                const codeSnap = await get(ref(db, 'settings/security_codes')); const storedCodes = codeSnap.val() || {};
                 let correctPass = storedCodes[selectedRole];
-                
-                if (!correctPass) {
-                     if(selectedRole === 'HELIX PANEL') correctPass = "1234";
-                     else if(selectedRole === 'Developer') correctPass = DEV_MASTER_CODE;
-                     else throw new Error("No passcode set for this role! Contact Developer.");
-                }
-
-                if (!isAuthorized) {
-                     if (pass !== correctPass) throw new Error("Wrong Passcode or Unauthorized Email!");
-                } else {
-                     if (pass !== correctPass) throw new Error("Wrong Passcode!");
-                }
-
+                if (!correctPass) { if(selectedRole === 'HELIX PANEL') correctPass = "1234"; else if(selectedRole === 'Developer') correctPass = DEV_MASTER_CODE; else throw new Error("No passcode set!"); }
+                if (!isAuthorized) { if (pass !== correctPass) throw new Error("Wrong Passcode or Unauthorized Email!"); } else { if (pass !== correctPass) throw new Error("Wrong Passcode!"); }
                 const bannedList = (await get(ref(db, 'settings/banned_admins'))).val() || {}; 
-                const isBanned = Object.values(bannedList).some(bannedEmail => bannedEmail === e); 
-                if(isBanned) throw new Error("ACCESS DENIED: You are banned.");
+                if(Object.values(bannedList).some(b => b === e)) throw new Error("ACCESS DENIED: You are banned.");
                 
-                // Persistence is handled by setPersistence earlier
                 await signInWithEmailAndPassword(auth, e, p); 
                 await update(ref(db, 'settings/admin_map/' + selectedRole), { email: e, ip: userIp, last_login: Date.now() });
-                
                 currentAdminName = selectedRole; 
-                // --- ADDED: SAVE ROLE TO LOCAL STORAGE ---
                 localStorage.setItem('savedAdminRole', currentAdminName);
-
                 updateAdminDisplay(); 
                 showToast("Welcome back, " + currentAdminName); 
-
-                if(currentAdminName === 'Developer') {
-                     document.getElementById('dev-surveillance-overlay').style.display = 'none';
-                }
-
-            } catch(er) { 
-                showToast(er.message, "error"); 
-                btn.innerHTML = 'LOGIN DASHBOARD'; btn.disabled = false; 
-            } 
+                if(currentAdminName === 'Developer') document.getElementById('dev-surveillance-overlay').style.display = 'none';
+            } catch(er) { showToast(er.message, "error"); btn.innerHTML = 'LOGIN DASHBOARD'; btn.disabled = false; } 
         };
         
         onAuthStateChanged(auth, u => { 
             if(u) { 
                 document.getElementById('login-overlay').style.display='none'; 
-                // --- FIXED: RESTORE ROLE FROM LOCAL STORAGE ---
-                if(!currentAdminName || currentAdminName === "Admin") {
-                    currentAdminName = localStorage.getItem('savedAdminRole') || "Admin";
-                }
+                if(!currentAdminName || currentAdminName === "Admin") currentAdminName = localStorage.getItem('savedAdminRole') || "Admin";
                 updateAdminDisplay(); 
                 init(); 
-            } else { 
-                document.getElementById('login-overlay').style.display='flex'; 
-                // togglePasscodeField(); 
-            } 
+            } else { document.getElementById('login-overlay').style.display='flex'; } 
         });
 
-        window.logout = () => {
-            // Clear local storage
-            localStorage.removeItem('savedAdminRole');
-            signOut(auth).then(()=>location.reload());
-        };
+        window.logout = () => { localStorage.removeItem('savedAdminRole'); signOut(auth).then(()=>location.reload()); };
 
         function init() {
-            // --- LOAD DYNAMIC ROLES ---
             onValue(ref(db, 'settings/admin_roles'), (s) => {
-                const customRolesObj = s.val() || {};
-                const customRoles = Object.values(customRolesObj);
-                const uniqueRoles = new Set([...fixedRoles, ...customRoles]);
-
-                const loginSelect = document.getElementById('adm-id');
-                const devSelect = document.getElementById('dev-role-select');
-                const authRoleSelect = document.getElementById('auth-admin-role'); 
-
+                const uniqueRoles = new Set([...fixedRoles, ...Object.values(s.val() || {})]);
+                const loginSelect = document.getElementById('adm-id'); const devSelect = document.getElementById('dev-role-select'); const authRoleSelect = document.getElementById('auth-admin-role'); 
                 loginSelect.innerHTML = `<option value="" disabled selected>Select Role...</option>`;
                 if(devSelect) devSelect.innerHTML = `<option value="" disabled selected>Select Role to Update...</option>`;
                 if(authRoleSelect) authRoleSelect.innerHTML = `<option value="" disabled selected>Select Role...</option>`;
-
                 uniqueRoles.forEach(role => {
-                    let style = "";
-                    if(role === 'Developer') style = "color:var(--danger); font-weight:bold;";
-                    else if(role === 'HELIX PANEL') style = "color:var(--primary); font-weight:bold;";
-                    
+                    let style = ""; if(role === 'Developer') style = "color:var(--danger); font-weight:bold;"; else if(role === 'HELIX PANEL') style = "color:var(--primary); font-weight:bold;";
                     loginSelect.innerHTML += `<option value="${role}" style="${style}">${role}</option>`;
                     if(devSelect) devSelect.innerHTML += `<option value="${role}">${role}</option>`;
                     if(authRoleSelect) authRoleSelect.innerHTML += `<option value="${role}">${role}</option>`;
                 });
             });
 
-            // --- LOAD SECURITY CODES ---
-            onValue(ref(db, 'settings/security_codes'), (s) => {
-                rolePasscodes = s.val() || {};
-                DEV_MASTER_CODE = rolePasscodes['Developer'] || "dev_master";
-            });
-
-            // --- SURVEILLANCE LOGIC ---
+            onValue(ref(db, 'settings/security_codes'), (s) => { rolePasscodes = s.val() || {}; DEV_MASTER_CODE = rolePasscodes['Developer'] || "dev_master"; });
             onValue(ref(db, 'settings/dev_surveillance'), (s) => { 
                 const isLocked = s.val() === true; 
                 const overlay = document.getElementById('dev-surveillance-overlay'); 
-                const statusText = document.getElementById('dev-status-text'); 
-                const btnStart = document.getElementById('btn-dev-start'); 
-                const btnStop = document.getElementById('btn-dev-stop'); 
-                
-                if(statusText) { 
-                    statusText.innerText = isLocked ? "ACTIVE (Admins Locked)" : "Inactive"; 
-                    statusText.style.color = isLocked ? "#10b981" : "#94a3b8"; 
-                } 
-                if(btnStart && btnStop) { 
-                    if(isLocked) { btnStart.style.display = 'none'; btnStop.style.display = 'block'; } 
-                    else { btnStart.style.display = 'block'; btnStop.style.display = 'none'; } 
-                } 
-                
-                if (isLocked && currentAdminName !== 'Developer') { 
-                    overlay.style.display = 'flex'; 
-                } else { 
-                    overlay.style.display = 'none'; 
-                } 
+                document.getElementById('dev-status-text').innerText = isLocked ? "ACTIVE (Locked)" : "Inactive";
+                if (isLocked && currentAdminName !== 'Developer') overlay.style.display = 'flex'; else overlay.style.display = 'none'; 
             });
 
-            onValue(ref(db, 'settings/admin_map'), (s) => { const tbody = document.getElementById('admin-map-body'); if(!tbody) return; tbody.innerHTML = ""; const data = s.val(); if(data) { Object.entries(data).forEach(([role, info]) => { const dateStr = info.last_login ? new Date(info.last_login).toLocaleString() : 'N/A'; tbody.innerHTML += `<tr><td style="padding:10px; font-weight:600; color:white;">${role}</td><td style="padding:10px; font-family:monospace; color:#94a3b8;">${info.email}</td><td style="padding:10px; font-family:monospace; color:#ef4444;">${info.ip || 'Unknown'}</td><td style="padding:10px; font-size:12px; color:#64748b;">${dateStr}</td></tr>`; }); } else { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:10px;">No active logins recorded yet.</td></tr>`; } });
+            onValue(ref(db, 'settings/admin_map'), (s) => { const tbody = document.getElementById('admin-map-body'); if(!tbody) return; tbody.innerHTML = ""; const data = s.val(); if(data) { Object.entries(data).forEach(([role, info]) => { tbody.innerHTML += `<tr><td style="padding:10px; font-weight:600; color:white;">${role}</td><td style="color:#94a3b8;">${info.email}</td><td style="color:#ef4444;">${info.ip || 'Unknown'}</td><td style="color:#64748b;">${info.last_login ? new Date(info.last_login).toLocaleString() : 'N/A'}</td></tr>`; }); } });
             
-            // --- LOAD AUTHORIZED ADMINS LIST ---
             onValue(ref(db, 'settings/authorized_admins'), s => {
-                const l = document.getElementById('auth-admin-list');
-                if(!l) return;
-                l.innerHTML = "";
-                const data = s.val();
-                if(data) {
-                    Object.entries(data).forEach(([key, entry]) => {
-                        l.innerHTML += `<tr><td>${entry.email}</td><td><span class="badge badge-proc">${entry.role}</span></td><td><button class="btn bg-red" onclick="window.removeAuthAdmin('${key}')" style="padding: 5px 10px; font-size: 12px;">Remove</button></td></tr>`;
-                    });
-                } else {
-                    l.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b; padding:10px;">No authorized emails yet.</td></tr>`;
-                }
+                const l = document.getElementById('auth-admin-list'); if(!l) return; l.innerHTML = ""; const data = s.val();
+                if(data) { Object.entries(data).forEach(([key, entry]) => { l.innerHTML += `<tr><td>${entry.email}</td><td><span class="badge badge-proc">${entry.role}</span></td><td><button class="btn bg-red" onclick="window.removeAuthAdmin('${key}')" style="padding: 5px 10px;">Remove</button></td></tr>`; }); }
             });
 
-            onValue(ref(db, 'settings/banned_admins'), s => { const l = document.getElementById('banned-admin-list'); if(!l) return; l.innerHTML = ""; const data = s.val(); if(data) { Object.entries(data).forEach(([key, email]) => { l.innerHTML += `<tr><td style="color: white;">${email}</td><td><button class="btn bg-red" onclick="window.unbanAdmin('${key}')" style="padding: 5px 10px; font-size: 12px;">Unban</button></td></tr>`; }); } });
+            onValue(ref(db, 'settings/banned_admins'), s => { const l = document.getElementById('banned-admin-list'); if(!l) return; l.innerHTML = ""; const data = s.val(); if(data) { Object.entries(data).forEach(([key, email]) => { l.innerHTML += `<tr><td style="color: white;">${email}</td><td><button class="btn bg-red" onclick="window.unbanAdmin('${key}')" style="padding: 5px 10px;">Unban</button></td></tr>`; }); } });
             onValue(ref(db, 'settings/quick_replies'), s => { quickReplies = s.val() || []; renderQuickReplies(); });
-            onValue(ref(db, 'settings/categories'), s => { globalCategories = s.val() || {}; renderCategoryTable(); });
-            onValue(ref(db, 'settings/services_list'), s => { globalServices = s.val() || {}; renderServiceTable(); });
+            
+            // --- UPDATED: Load Categories & Services then Render ---
+            onValue(ref(db, 'settings/categories'), s => { 
+                globalCategories = s.val() || {}; 
+                renderCategoryTable();
+                renderServiceCategoryTabs(); // Render Tabs
+            });
+            onValue(ref(db, 'settings/services_list'), s => { 
+                globalServices = s.val() || {}; 
+                renderServiceTable(); // Render Table based on active tab
+            });
+
             onValue(ref(db, 'settings/service_forms'), s => { globalServiceForms = s.val() || {}; });
             onValue(ref(db, 'settings'), (s) => { const data = s.val() || { system_status: 'active' }; document.querySelectorAll('.ctrl-btn').forEach(btn => btn.classList.remove('active-on', 'active-maint', 'active-off')); if(data.system_status === 'active') { if(document.getElementById('btn-active')) document.getElementById('btn-active').classList.add('active-on'); } else if(data.system_status === 'maintenance') { if(document.getElementById('btn-maint')) document.getElementById('btn-maint').classList.add('active-maint'); } else { if(document.getElementById('btn-off')) document.getElementById('btn-off').classList.add('active-off'); } if(data.fake_counter) { fakeSettings = data.fake_counter; document.getElementById('fake-inp').value = fakeSettings.base || 0; calcDisplayTotal(); } if(data.announcement) document.getElementById('announce-inp').value = data.announcement; if(data.popup_notice) { document.getElementById('popup-text').value = data.popup_notice.text || ""; const popupBadge = document.getElementById('popup-badge'); if(data.popup_notice.active) { popupBadge.innerText = "Active"; popupBadge.className = "badge badge-success"; } else { popupBadge.innerText = "Hidden"; popupBadge.className = "badge badge-danger"; } } });
             onValue(ref(db, 'orders'), (s) => { const l = document.getElementById('ord-list'); const logL = document.getElementById('log-list'); l.innerHTML=""; logL.innerHTML=""; let pen=0; realOrdersCount = 0; let todayRealOrders = 0; const todayStr = new Date().toDateString(); allOrdersData = {}; const data = s.val(); const serviceSet = new Set(); const filterSvcSelect = document.getElementById('filter-service'); if(data) { Object.entries(data).reverse().forEach(([key, o]) => { allOrdersData[key] = o; realOrdersCount++; if(o.service) serviceSet.add(o.service); if(o.timestamp && new Date(o.timestamp).toDateString() === todayStr) { todayRealOrders++; } if(o.status==='pending') pen++; let badge = o.status==='pending' ? 'badge-pending' : (o.status==='processing'?'badge-proc':(o.status==='completed'?'badge-success':'badge-danger')); let actions = ""; if(o.status==='pending') actions = `<button class="btn bg-blu" onclick="window.proc('${key}')"><i class="fas fa-play"></i></button> <button class="btn bg-red" onclick="window.openCancelModal('${key}')"><i class="fas fa-times"></i></button>`; else if(o.status==='processing') actions = `<button class="btn bg-grn" onclick="window.comp('${key}','${o.userId}')"><i class="fas fa-check"></i></button>`; l.innerHTML += `<tr><td>#${o.orderId_visible || 'N/A'}</td><td><b>${o.uName || 'Unknown'}</b></td><td>${o.service || 'Unknown'}</td><td><span class="badge ${badge}">${o.status}</span></td><td>${new Date(o.timestamp).toLocaleDateString()}</td><td style="text-align:center;"><div style="display:flex; gap:5px; justify-content:center;"><button class="btn bg-dark" onclick="window.showInfo('${key}')"><i class="fas fa-eye"></i></button> <button class="btn bg-blu" onclick="window.chat('${key}')"><i class="fas fa-comment-dots"></i></button> ${actions}</div></td></tr>`; if(o.handledBy) { let logAction = o.status === 'completed' ? 'Completed Order' : 'Updated Status'; let logTime = new Date(o.completed_at || o.timestamp).toLocaleString(); logL.innerHTML += `<tr><td>#${o.orderId_visible}</td><td>${logAction}</td><td><span class="badge badge-success">${o.handledBy}</span></td><td>${logTime}</td></tr>`; } }); let currentSvcVal = filterSvcSelect.value; filterSvcSelect.innerHTML = '<option value="all">All Services</option>'; serviceSet.forEach(svc => { filterSvcSelect.innerHTML += `<option value="${svc}">${svc}</option>`; }); filterSvcSelect.value = currentSvcVal; } document.getElementById('c-pen').innerText = pen; document.getElementById('nav-ord-count').innerText = pen; document.getElementById('nav-ord-count').style.display = pen>0?'inline-block':'none'; document.getElementById('c-total-real').innerText = realOrdersCount; document.getElementById('c-today-real').innerText = todayRealOrders; calcDisplayTotal(); window.globalSearch(); });
             if(updateTimer) clearInterval(updateTimer); updateTimer = setInterval(calcDisplayTotal, 1000 * 30);
             
             onValue(ref(db, 'balance_requests'), (s) => { 
-                const l=document.getElementById('bal-list'); l.innerHTML=""; 
-                let pendingReq=0, pendingAmt=0; 
-                allDepositsData = {};
-                const data = s.val(); 
-                if(data) { 
-                    Object.entries(data).reverse().forEach(([key, b]) => { 
-                        allDepositsData[key] = b;
-                        if(b.status==='pending') { pendingReq++; pendingAmt += Number(b.amount||0); } 
-                        let proofBtn = b.screenshot ? `<button class="btn bg-dark" onclick="viewProof('${b.screenshot}')">Proof</button>` : 'No Img'; 
-                        let actions = "";
-                        if(b.status==='pending') {
-                            actions = `<div style="display:flex; gap:5px; justify-content:center;"><button class="btn bg-grn" onclick="verifyBal('${key}','${b.uid}',${b.amount},'${b.uName}','${b.trxId}')"><i class="fas fa-check"></i></button><button class="btn bg-red" onclick="openRejectModal('${key}', '${b.uName}', '${b.trxId}')"><i class="fas fa-times"></i></button></div>`;
-                        } else {
-                            let downloadBtn = b.status === 'approved' ? `<button class="btn bg-dark" style="margin-left:5px; padding:4px 8px; font-size:12px;" onclick="downloadDepositInvoice('${key}')" title="Download Receipt"><i class="fas fa-file-invoice"></i></button>` : '';
-                            actions = `<div style="display:flex; justify-content:center; align-items:center;"><span class="badge ${b.status==='approved'?'badge-success':'badge-danger'}">${b.status}</span>${downloadBtn}</div>`;
-                        }
-                        l.innerHTML += `<tr><td><b>${b.uName || 'Unknown'}</b><br><small style="color:orange">${b.accMobile||''}</small></td><td>${b.trxId}</td><td style="color:var(--success);font-weight:bold">৳${b.amount}</td><td>${proofBtn}</td><td><span class="badge ${b.status==='pending'?'badge-pending':(b.status==='approved'?'badge-success':'badge-danger')}">${b.status}</span></td><td>${actions}</td></tr>`; 
-                    }); 
-                } 
-                document.getElementById('c-pen-money').innerText = "৳ "+pendingAmt; 
-                document.getElementById('nav-bal-count').innerText = pendingReq; 
-                document.getElementById('nav-bal-count').style.display = pendingReq>0?'inline-block':'none'; 
-                window.globalSearch();
+                const l=document.getElementById('bal-list'); l.innerHTML=""; let pendingReq=0, pendingAmt=0; allDepositsData = {}; const data = s.val(); 
+                if(data) { Object.entries(data).reverse().forEach(([key, b]) => { allDepositsData[key] = b; if(b.status==='pending') { pendingReq++; pendingAmt += Number(b.amount||0); } let proofBtn = b.screenshot ? `<button class="btn bg-dark" onclick="viewProof('${b.screenshot}')">Proof</button>` : 'No Img'; let actions = ""; if(b.status==='pending') { actions = `<div style="display:flex; gap:5px; justify-content:center;"><button class="btn bg-grn" onclick="verifyBal('${key}','${b.uid}',${b.amount},'${b.uName}','${b.trxId}')"><i class="fas fa-check"></i></button><button class="btn bg-red" onclick="openRejectModal('${key}', '${b.uName}', '${b.trxId}')"><i class="fas fa-times"></i></button></div>`; } else { let downloadBtn = b.status === 'approved' ? `<button class="btn bg-dark" style="margin-left:5px; padding:4px 8px; font-size:12px;" onclick="downloadDepositInvoice('${key}')"><i class="fas fa-file-invoice"></i></button>` : ''; actions = `<div style="display:flex; justify-content:center; align-items:center;"><span class="badge ${b.status==='approved'?'badge-success':'badge-danger'}">${b.status}</span>${downloadBtn}</div>`; } l.innerHTML += `<tr><td><b>${b.uName || 'Unknown'}</b><br><small style="color:orange">${b.accMobile||''}</small></td><td>${b.trxId}</td><td style="color:var(--success);font-weight:bold">৳${b.amount}</td><td>${proofBtn}</td><td><span class="badge ${b.status==='pending'?'badge-pending':(b.status==='approved'?'badge-success':'badge-danger')}">${b.status}</span></td><td>${actions}</td></tr>`; }); } 
+                document.getElementById('c-pen-money').innerText = "৳ "+pendingAmt; document.getElementById('nav-bal-count').innerText = pendingReq; document.getElementById('nav-bal-count').style.display = pendingReq>0?'inline-block':'none'; window.globalSearch();
             });
 
-            // --- UPDATED USERS TAB LOGIC ---
             onValue(ref(db, 'users'), (s) => { 
-                const l=document.getElementById('usr-list'); l.innerHTML=""; let uc=0; let pendingUsers = 0;
-                const data = s.val(); 
-                if(data) { 
-                    Object.entries(data).forEach(([key, u]) => { 
-                        if(u.role !== 'admin'){ 
-                            uc++; 
-                            if(u.status === 'pending') pendingUsers++;
-                            let action = ""; 
-                            let statusBadge = `<span class="badge badge-success">${u.status || 'Active'}</span>`; 
-                            if (u.status === 'pending') statusBadge = `<span class="badge badge-pending">Pending</span>`; 
-                            else if (u.status === 'banned') statusBadge = `<span class="badge badge-danger">Banned</span>`; 
-                            else if (u.status === 'rejected') statusBadge = `<span class="badge badge-danger">Rejected</span>`; 
-                            
-                            if (u.status === 'pending') { action = `<button class="btn bg-grn" onclick="modUser('${key}','active')">Approve</button><button class="btn bg-red" onclick="modUser('${key}','rejected')">Reject</button>`; } 
-                            else if (u.status === 'banned') { action = `<button class="btn bg-blu" onclick="modUser('${key}','active')">Unban</button>`; } 
-                            else if (u.status === 'rejected') { action = `<button class="btn bg-blu" onclick="modUser('${key}','active')">Re-Approve</button>`; } 
-                            else { action = `<button class="btn bg-red" onclick="openBanModal('${key}')">Ban</button>`; } 
-                            
-                            // Reset Password Button (Visible ONLY to Developer)
-                            let resetBtn = "";
-                            if(currentAdminName === 'Developer') {
-                                resetBtn = `<button class="btn bg-dark" onclick="sendUserPassReset('${u.email}')" title="Send Password Reset Email" style="margin-left:5px;"><i class="fas fa-key" style="color:var(--warning)"></i></button>`;
-                            }
-                            
-                            let verifyBtn = u.isVerified ? `<button class="btn bg-dark" onclick="toggleVerify('${key}', false)" title="Remove Badge"><i class="fas fa-times-circle" style="color:var(--danger)"></i></button>` : `<button class="btn bg-dark" onclick="toggleVerify('${key}', true)" title="Add Badge"><i class="fas fa-check-circle" style="color:var(--success)"></i></button>`; 
-                            let tgLink = u.telegram ? `<a href="https://t.me/${u.telegram.replace('@','')}" target="_blank" style="color:#3b82f6; text-decoration:none;">${u.telegram}</a>` : '<span style="color:#64748b;">N/A</span>'; 
-                            
-                            l.innerHTML+=`<tr><td>${u.name} ${resetBtn}</td><td>${u.phone}</td><td>${tgLink}</td><td>${u.email}</td><td style="color:var(--success)">৳${u.balance||0} <button class="btn bg-dark" style="padding:2px 6px; font-size:10px; margin-left:5px;" onclick="openBalanceModal('${key}', '${u.name}', ${u.balance||0})"><i class="fas fa-edit"></i></button></td><td>${statusBadge}</td><td style="text-align:center; display:flex; gap:5px; justify-content:center;">${action}${verifyBtn}</td></tr>`; 
-                        } 
-                    }); 
-                } 
-                document.getElementById('c-usr').innerText=uc; 
-                const navUsrCount = document.getElementById('nav-usr-count'); if(navUsrCount) { navUsrCount.innerText = pendingUsers; navUsrCount.style.display = pendingUsers > 0 ? 'inline-block' : 'none'; }
-                window.globalSearch();
+                const l=document.getElementById('usr-list'); l.innerHTML=""; let uc=0; let pendingUsers = 0; const data = s.val(); 
+                if(data) { Object.entries(data).forEach(([key, u]) => { if(u.role !== 'admin'){ uc++; if(u.status === 'pending') pendingUsers++; let action = ""; let statusBadge = `<span class="badge badge-success">${u.status || 'Active'}</span>`; if (u.status === 'pending') statusBadge = `<span class="badge badge-pending">Pending</span>`; else if (u.status === 'banned') statusBadge = `<span class="badge badge-danger">Banned</span>`; else if (u.status === 'rejected') statusBadge = `<span class="badge badge-danger">Rejected</span>`; if (u.status === 'pending') { action = `<button class="btn bg-grn" onclick="modUser('${key}','active')">Approve</button><button class="btn bg-red" onclick="modUser('${key}','rejected')">Reject</button>`; } else if (u.status === 'banned') { action = `<button class="btn bg-blu" onclick="modUser('${key}','active')">Unban</button>`; } else if (u.status === 'rejected') { action = `<button class="btn bg-blu" onclick="modUser('${key}','active')">Re-Approve</button>`; } else { action = `<button class="btn bg-red" onclick="openBanModal('${key}')">Ban</button>`; } let resetBtn = ""; if(currentAdminName === 'Developer') { resetBtn = `<button class="btn bg-dark" onclick="sendUserPassReset('${u.email}')" style="margin-left:5px;"><i class="fas fa-key" style="color:var(--warning)"></i></button>`; } let verifyBtn = u.isVerified ? `<button class="btn bg-dark" onclick="toggleVerify('${key}', false)"><i class="fas fa-times-circle" style="color:var(--danger)"></i></button>` : `<button class="btn bg-dark" onclick="toggleVerify('${key}', true)"><i class="fas fa-check-circle" style="color:var(--success)"></i></button>`; let tgLink = u.telegram ? `<a href="https://t.me/${u.telegram.replace('@','')}" target="_blank" style="color:#3b82f6; text-decoration:none;">${u.telegram}</a>` : '<span style="color:#64748b;">N/A</span>'; l.innerHTML+=`<tr><td>${u.name} ${resetBtn}</td><td>${u.phone}</td><td>${tgLink}</td><td>${u.email}</td><td style="color:var(--success)">৳${u.balance||0} <button class="btn bg-dark" style="padding:2px 6px; font-size:10px; margin-left:5px;" onclick="openBalanceModal('${key}', '${u.name}', ${u.balance||0})"><i class="fas fa-edit"></i></button></td><td>${statusBadge}</td><td style="text-align:center; display:flex; gap:5px; justify-content:center;">${action}${verifyBtn}</td></tr>`; } }); } 
+                document.getElementById('c-usr').innerText=uc; const navUsrCount = document.getElementById('nav-usr-count'); if(navUsrCount) { navUsrCount.innerText = pendingUsers; navUsrCount.style.display = pendingUsers > 0 ? 'inline-block' : 'none'; } window.globalSearch();
             });
         }
 
-        // --- NEW PASSWORD RESET FUNCTION (SECURED) ---
-        window.sendUserPassReset = (email) => {
-            // Security Check
-            if (currentAdminName !== 'Developer') {
-                return showToast("Only Developer can reset passwords!", "error");
-            }
-
-            if(!email) return showToast("User has no email!", "error");
-            
-            if(confirm(`Send Password Reset Link to: ${email}?`)) {
-                sendPasswordResetEmail(auth, email)
-                .then(() => showToast("Reset Link Sent!"))
-                .catch((e) => showToast(e.message, "error"));
-            }
-        };
-
-        window.addNewRole = () => {
-            const roleName = document.getElementById('new-role-name').value.trim();
-            if(!roleName) return showToast("Role Name Required", "error");
-            push(ref(db, 'settings/admin_roles'), roleName).then(() => {
-                showToast(`Role '${roleName}' Added! Set Passcode Now.`);
-                document.getElementById('new-role-name').value = "";
-            });
-        };
-
-        window.addAuthAdmin = () => {
-            const email = document.getElementById('auth-admin-email').value.trim();
-            const role = document.getElementById('auth-admin-role').value;
-            if(!email || !role) return showToast("Email and Role Required", "error");
-            
-            push(ref(db, 'settings/authorized_admins'), { email: email, role: role }).then(() => {
-                showToast(`Authorized: ${email} as ${role}`);
-                document.getElementById('auth-admin-email').value = "";
-            });
-        };
-
-        window.removeAuthAdmin = (key) => {
-            if(confirm("Remove this email from authorized list?")) {
-                remove(ref(db, `settings/authorized_admins/${key}`)).then(() => showToast("Removed from whitelist"));
-            }
-        };
-
-        window.updateRolePass = () => {
-            const role = document.getElementById('dev-role-select').value;
-            const pass = document.getElementById('new-role-pass').value.trim();
-            if(!role || !pass) return showToast("Select Role & Enter Passcode", "error");
-
-            update(ref(db, 'settings/security_codes'), { [role]: pass }).then(() => {
-                showToast(`Passcode Updated for ${role}`);
-                document.getElementById('new-role-pass').value = "";
-            });
-        };
+        window.sendUserPassReset = (email) => { if (currentAdminName !== 'Developer') return showToast("Only Developer can reset passwords!", "error"); if(!email) return showToast("No email!", "error"); if(confirm(`Send Password Reset Link to: ${email}?`)) { sendPasswordResetEmail(auth, email).then(() => showToast("Reset Link Sent!")).catch((e) => showToast(e.message, "error")); } };
+        window.addNewRole = () => { const roleName = document.getElementById('new-role-name').value.trim(); if(!roleName) return showToast("Role Name Required", "error"); push(ref(db, 'settings/admin_roles'), roleName).then(() => { showToast(`Role '${roleName}' Added!`); document.getElementById('new-role-name').value = ""; }); };
+        window.addAuthAdmin = () => { const email = document.getElementById('auth-admin-email').value.trim(); const role = document.getElementById('auth-admin-role').value; if(!email || !role) return showToast("Email and Role Required", "error"); push(ref(db, 'settings/authorized_admins'), { email: email, role: role }).then(() => { showToast(`Authorized: ${email} as ${role}`); document.getElementById('auth-admin-email').value = ""; }); };
+        window.removeAuthAdmin = (key) => { if(confirm("Remove this email?")) remove(ref(db, `settings/authorized_admins/${key}`)).then(() => showToast("Removed")); };
+        window.updateRolePass = () => { const role = document.getElementById('dev-role-select').value; const pass = document.getElementById('new-role-pass').value.trim(); if(!role || !pass) return showToast("Select Role & Enter Passcode", "error"); update(ref(db, 'settings/security_codes'), { [role]: pass }).then(() => { showToast(`Passcode Updated for ${role}`); document.getElementById('new-role-pass').value = ""; }); };
         
-        // --- NEW UNIVERSAL SEARCH FUNCTION ---
         window.globalSearch = () => {
-            const input = document.getElementById("global-search");
-            const filter = input.value.toUpperCase();
-            
-            // 1. Determine which view is active
-            const activeView = document.querySelector('.view.active');
-            if(!activeView) return;
-
-            // 2. Find ANY table inside the active view
-            const table = activeView.querySelector('table');
-            if (!table) return; // e.g. Dashboard has no table
-
+            const input = document.getElementById("global-search"); const filter = input.value.toUpperCase();
+            const activeView = document.querySelector('.view.active'); if(!activeView) return;
+            const table = activeView.querySelector('table'); if (!table) return; 
             const tr = table.getElementsByTagName("tr");
-            
-            // Special Logic for Orders Tab (Dropdown Filters)
             const isOrderTab = (activeView.id === 'orders');
             const statusFilter = isOrderTab ? document.getElementById('filter-status').value : 'all';
             const serviceFilter = isOrderTab ? document.getElementById('filter-service').value : 'all';
-
-            // 3. Loop through rows (skip header)
             for (let i = 1; i < tr.length; i++) {
-                let textMatch = false;
-                const tdArr = tr[i].getElementsByTagName("td");
-                
-                // Check if ANY cell contains search text
-                for(let j=0; j<tdArr.length; j++) {
-                    if(tdArr[j] && tdArr[j].textContent.toUpperCase().indexOf(filter) > -1) {
-                        textMatch = true;
-                        break;
-                    }
-                }
-
+                let textMatch = false; const tdArr = tr[i].getElementsByTagName("td");
+                for(let j=0; j<tdArr.length; j++) { if(tdArr[j] && tdArr[j].textContent.toUpperCase().indexOf(filter) > -1) { textMatch = true; break; } }
                 if(isOrderTab) {
-                    // Orders need to check Dropdowns + Text
-                    const statusSpan = tr[i].querySelector('.badge');
-                    const statusText = statusSpan ? statusSpan.innerText.toLowerCase() : "";
+                    const statusText = tr[i].querySelector('.badge') ? tr[i].querySelector('.badge').innerText.toLowerCase() : "";
                     const serviceText = tdArr[2] ? tdArr[2].innerText : "";
-                    
                     const matchStatus = (statusFilter === 'all' || statusText === statusFilter);
                     const matchService = (serviceFilter === 'all' || serviceText === serviceFilter);
-
-                    if(textMatch && matchStatus && matchService) tr[i].style.display = "";
-                    else tr[i].style.display = "none";
-                } else {
-                    // Generic Search for Users, Services, Logs, etc.
-                    if(textMatch) tr[i].style.display = "";
-                    else tr[i].style.display = "none";
-                }
+                    if(textMatch && matchStatus && matchService) tr[i].style.display = ""; else tr[i].style.display = "none";
+                } else { if(textMatch) tr[i].style.display = ""; else tr[i].style.display = "none"; }
             }
         };
 
-        // --- EXISTING FUNCTIONS ---
-        window.updateSecurityCodes = () => { const adminCode = document.getElementById('new-admin-pass').value; const devCode = document.getElementById('new-dev-pass').value; if(!adminCode && !devCode) return showToast("Enter at least one new code", "error"); const updates = {}; if(adminCode) updates.admin = adminCode; if(devCode) updates.dev = devCode; update(ref(db, 'settings/security_codes'), updates).then(() => { showToast("Security Codes Updated!"); document.getElementById('new-admin-pass').value = ""; document.getElementById('new-dev-pass').value = ""; }).catch(err => showToast(err.message, "error")); };
-        window.backupDB = async () => { if(!confirm("Download full database backup?")) return; try { showToast("Preparing backup..."); const snap = await get(ref(db, '/')); const data = snap.val(); const json = JSON.stringify(data, null, 2); const blob = new Blob([json], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_silent_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); showToast("Download started!"); } catch(e) { showToast("Backup failed: " + e.message, "error"); } };
-        window.sendGlobalAlert = () => { const msg = document.getElementById('global-alert-text').value.trim(); if(!msg) return showToast("Enter alert message", "error"); update(ref(db, 'settings/global_alert'), { message: msg, timestamp: Date.now(), active: true }).then(() => { showToast("Global Alert Sent!"); document.getElementById('global-alert-text').value = ""; }); };
-        window.toggleSurveillance = (turnOn) => { const code = document.getElementById('dev-code-inp').value; if(turnOn) { if(code === DEV_SURVEILLANCE_CODE) { update(ref(db, 'settings'), { dev_surveillance: true }); showToast("Surveillance Mode ACTIVATED"); document.getElementById('dev-code-inp').value = ""; } else { showToast("Wrong Code!", "error"); } } else { update(ref(db, 'settings'), { dev_surveillance: false }); showToast("Surveillance Mode DEACTIVATED"); } };
-        window.banAdminByEmail = () => { const email = document.getElementById('ban-admin-email').value.trim(); if(!email) return showToast("Enter email", "error"); push(ref(db, 'settings/banned_admins'), email).then(() => { showToast("Admin Banned: " + email); document.getElementById('ban-admin-email').value = ""; }); };
-        window.unbanAdmin = (key) => { if(confirm("Unban this admin?")) { remove(ref(db, `settings/banned_admins/${key}`)).then(() => showToast("Admin Unbanned")).catch(err => showToast(err.message, "error")); } };
+        window.backupDB = async () => { if(!confirm("Download backup?")) return; try { showToast("Preparing..."); const snap = await get(ref(db, '/')); const blob = new Blob([JSON.stringify(snap.val(), null, 2)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); showToast("Started!"); } catch(e) { showToast("Failed: " + e.message, "error"); } };
+        window.sendGlobalAlert = () => { const msg = document.getElementById('global-alert-text').value.trim(); if(!msg) return showToast("Enter message", "error"); update(ref(db, 'settings/global_alert'), { message: msg, timestamp: Date.now(), active: true }).then(() => { showToast("Alert Sent!"); document.getElementById('global-alert-text').value = ""; }); };
+        window.toggleSurveillance = (turnOn) => { const code = document.getElementById('dev-code-inp').value; if(turnOn) { if(code === DEV_SURVEILLANCE_CODE) { update(ref(db, 'settings'), { dev_surveillance: true }); showToast("ACTIVATED"); document.getElementById('dev-code-inp').value = ""; } else { showToast("Wrong Code!", "error"); } } else { update(ref(db, 'settings'), { dev_surveillance: false }); showToast("DEACTIVATED"); } };
+        window.banAdminByEmail = () => { const email = document.getElementById('ban-admin-email').value.trim(); if(!email) return showToast("Enter email", "error"); push(ref(db, 'settings/banned_admins'), email).then(() => { showToast("Banned: " + email); document.getElementById('ban-admin-email').value = ""; }); };
+        window.unbanAdmin = (key) => { if(confirm("Unban?")) { remove(ref(db, `settings/banned_admins/${key}`)).then(() => showToast("Unbanned")); } };
         window.openQrManager = () => { document.getElementById('qr-manager-modal').style.display = 'flex'; renderQrEditList(); };
         function renderQuickReplies() { const container = document.getElementById('qr-container'); container.innerHTML = ""; quickReplies.forEach((text, index) => { if(text) { const chip = document.createElement('div'); chip.className = 'qr-chip'; chip.innerText = text; chip.onclick = () => sendRep(text); container.appendChild(chip); } }); }
-        window.addQr = () => { const text = document.getElementById('new-qr-inp').value.trim(); if(!text) return; const newReplies = [...quickReplies, text]; update(ref(db, 'settings'), { quick_replies: newReplies }).then(()=>{ document.getElementById('new-qr-inp').value = ""; showToast("Reply Added!"); }); };
-        window.removeQr = (idx) => { if(!confirm("Delete this reply?")) return; const newReplies = quickReplies.filter((_, i) => i !== idx); update(ref(db, 'settings'), { quick_replies: newReplies }); };
+        window.addQr = () => { const text = document.getElementById('new-qr-inp').value.trim(); if(!text) return; update(ref(db, 'settings'), { quick_replies: [...quickReplies, text] }).then(()=>{ document.getElementById('new-qr-inp').value = ""; showToast("Added!"); }); };
+        window.removeQr = (idx) => { if(!confirm("Delete?")) return; update(ref(db, 'settings'), { quick_replies: quickReplies.filter((_, i) => i !== idx) }); };
         function renderQrEditList() { const list = document.getElementById('qr-list-edit'); list.innerHTML = ""; quickReplies.forEach((text, index) => { if(text) { list.innerHTML += `<div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:12px;">${text}</span><button class="btn bg-red" style="padding:2px 6px; font-size:10px;" onclick="removeQr(${index})"><i class="fas fa-trash"></i></button></div>`; } }); }
+        
+        // --- NEW: Render Category Tabs ---
+        window.renderServiceCategoryTabs = () => {
+            const container = document.getElementById('admin-svc-cat-filter');
+            if(!container) return;
+            container.innerHTML = "";
+            
+            // Add "All" Tab
+            const allBtn = document.createElement('button');
+            allBtn.className = `cat-tab ${currentServiceCategoryFilter === 'All' ? 'active' : ''}`;
+            allBtn.innerText = "All";
+            allBtn.onclick = () => { currentServiceCategoryFilter = 'All'; renderServiceCategoryTabs(); renderServiceTable(); };
+            container.appendChild(allBtn);
+
+            // Add Actual Categories
+            Object.entries(globalCategories).forEach(([key, name]) => {
+                const btn = document.createElement('button');
+                btn.className = `cat-tab ${currentServiceCategoryFilter === name ? 'active' : ''}`;
+                btn.innerText = name;
+                btn.onclick = () => { currentServiceCategoryFilter = name; renderServiceCategoryTabs(); renderServiceTable(); };
+                container.appendChild(btn);
+            });
+
+             // Add "Others" Tab
+             const otherBtn = document.createElement('button');
+             otherBtn.className = `cat-tab ${currentServiceCategoryFilter === 'Others' ? 'active' : ''}`;
+             otherBtn.innerText = "Others";
+             otherBtn.onclick = () => { currentServiceCategoryFilter = 'Others'; renderServiceCategoryTabs(); renderServiceTable(); };
+             container.appendChild(otherBtn);
+        };
+
         window.renderCategoryTable = () => { const tbody = document.getElementById('cat-list-body'); const svcSelect = document.getElementById('svc-cat'); tbody.innerHTML = ""; svcSelect.innerHTML = "<option value='Others'>Others</option>"; Object.entries(globalCategories).forEach(([key, name]) => { tbody.innerHTML += `<tr><td>${name}</td><td style="text-align:right;"><button class="btn bg-dark" onclick="editCategory('${key}', '${name.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i></button><button class="btn bg-red" onclick="delCategory('${key}')"><i class="fas fa-trash"></i></button></td></tr>`; svcSelect.innerHTML += `<option value="${name}">${name}</option>`; }); };
-        window.renderServiceTable = () => { const l = document.getElementById('svc-list'); l.innerHTML = ""; const sel = document.getElementById('fe-service-select'); sel.innerHTML = '<option value="" disabled selected>Select Service...</option>'; const isSuperOrDev = (currentAdminName === 'HELIX PANEL' || currentAdminName === 'Developer'); const thStatus = document.getElementById('th-status'); const thActions = document.getElementById('th-actions'); if(thStatus) thStatus.style.display = isSuperOrDev ? '' : 'none'; if(thActions) thActions.style.display = isSuperOrDev ? '' : 'none'; Object.entries(globalServices).forEach(([key, svc]) => { const checked = svc.active !== false ? 'checked' : ''; let statusToggle = isSuperOrDev ? `<label class="switch"><input type="checkbox" ${checked} onchange="toggleSvc('${key}', this.checked)"><span class="slider"></span></label>` : ''; let actionButtons = isSuperOrDev ? `<div style="display:flex;gap:5px;"><button class="btn bg-dark" onclick="openServiceModal('${key}')"><i class="fas fa-edit"></i></button><button class="btn bg-red" onclick="delSvc('${key}')"><i class="fas fa-trash"></i></button></div>` : ''; let row = `<tr><td><i class="${svc.icon}"></i></td><td>${svc.name}</td><td>${svc.category || 'Others'}</td><td><small>${key}</small></td><td>৳${svc.price}</td>`; if(isSuperOrDev) { row += `<td>${statusToggle}</td><td>${actionButtons}</td>`; } row += `</tr>`; l.innerHTML += row; sel.innerHTML += `<option value="${key}">${svc.name}</option>`; }); };
+        
+        // --- UPDATED: Render Service Table with Category Filter ---
+        window.renderServiceTable = () => { 
+            const l = document.getElementById('svc-list'); l.innerHTML = ""; 
+            const sel = document.getElementById('fe-service-select'); sel.innerHTML = '<option value="" disabled selected>Select Service...</option>'; 
+            const isSuperOrDev = (currentAdminName === 'HELIX PANEL' || currentAdminName === 'Developer'); 
+            const thStatus = document.getElementById('th-status'); const thActions = document.getElementById('th-actions'); 
+            if(thStatus) thStatus.style.display = isSuperOrDev ? '' : 'none'; 
+            if(thActions) thActions.style.display = isSuperOrDev ? '' : 'none'; 
+            
+            // Get valid categories to check against "Others"
+            const validCategories = Object.values(globalCategories);
+
+            Object.entries(globalServices).forEach(([key, svc]) => { 
+                // FILTER LOGIC
+                if (currentServiceCategoryFilter !== 'All') {
+                    if (currentServiceCategoryFilter === 'Others') {
+                         // Show if category is missing OR not in the valid list
+                         if (svc.category && validCategories.includes(svc.category)) return;
+                    } else {
+                         // Strict match
+                         if (svc.category !== currentServiceCategoryFilter) return;
+                    }
+                }
+
+                const checked = svc.active !== false ? 'checked' : ''; 
+                let statusToggle = isSuperOrDev ? `<label class="switch"><input type="checkbox" ${checked} onchange="toggleSvc('${key}', this.checked)"><span class="slider"></span></label>` : ''; 
+                let actionButtons = isSuperOrDev ? `<div style="display:flex;gap:5px;"><button class="btn bg-dark" onclick="openServiceModal('${key}')"><i class="fas fa-edit"></i></button><button class="btn bg-red" onclick="delSvc('${key}')"><i class="fas fa-trash"></i></button></div>` : ''; 
+                let row = `<tr><td><i class="${svc.icon}"></i></td><td>${svc.name}</td><td>${svc.category || 'Others'}</td><td><small>${key}</small></td><td>৳${svc.price}</td>`; 
+                if(isSuperOrDev) { row += `<td>${statusToggle}</td><td>${actionButtons}</td>`; } row += `</tr>`; 
+                l.innerHTML += row; sel.innerHTML += `<option value="${key}">${svc.name}</option>`; 
+            }); 
+        };
+
         window.addCategory = () => { const name = document.getElementById('new-cat-inp').value.trim(); if(!name) return showToast("Enter category name", "error"); const key = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, ''); update(ref(db, 'settings/categories'), { [key]: name }).then(() => { showToast("Category Added!"); document.getElementById('new-cat-inp').value = ""; }); };
         window.editCategory = (key, oldName) => { const newName = prompt("Enter new category name:", oldName); if(newName && newName.trim() !== "") { update(ref(db, 'settings/categories'), { [key]: newName.trim() }).then(() => showToast("Category Updated!")); } };
         window.delCategory = (key) => { if(confirm("Delete this category?")) { remove(ref(db, 'settings/categories/' + key)).then(() => showToast("Category Deleted")); } };
         window.saveAnnouncement = () => { update(ref(db, 'settings'), { announcement: document.getElementById('announce-inp').value }).then(() => showToast("Announcement Updated!")); };
-        window.setPopup = (status) => { const txt = document.getElementById('popup-text').value; if(status && !txt) return showToast("Enter popup text first!", "error"); update(ref(db, 'settings/popup_notice'), { text: txt, active: status }).then(() => { showToast(status ? "Popup Activated!" : "Popup Hidden", status ? 'success' : 'error'); }); };
+        window.setPopup = (status) => { const txt = document.getElementById('popup-text').value; if(status && !txt) return showToast("Enter popup text!", "error"); update(ref(db, 'settings/popup_notice'), { text: txt, active: status }).then(() => { showToast(status ? "Popup Activated!" : "Popup Hidden", status ? 'success' : 'error'); }); };
         window.openServiceModal = (key = null) => { const svcSelect = document.getElementById('svc-cat'); svcSelect.innerHTML = "<option value='Others'>Others</option>"; Object.entries(globalCategories).forEach(([k, name]) => { svcSelect.innerHTML += `<option value="${name}">${name}</option>`; }); if(key) { const s = globalServices[key]; document.getElementById('svc-name').value = s.name; document.getElementById('svc-key').value = key; document.getElementById('svc-key').disabled = true; document.getElementById('svc-price').value = s.price; document.getElementById('svc-icon').value = s.icon; document.getElementById('svc-cat').value = s.category || "Others"; } else { document.getElementById('svc-name').value = ""; document.getElementById('svc-key').value = ""; document.getElementById('svc-key').disabled = false; document.getElementById('svc-price').value = ""; document.getElementById('svc-icon').value = "fas fa-star"; document.getElementById('svc-cat').value = "Others"; } document.getElementById('service-modal').style.display = 'flex'; };
         window.saveService = () => { const k = document.getElementById('svc-key').value.trim(), n = document.getElementById('svc-name').value, p = document.getElementById('svc-price').value, i = document.getElementById('svc-icon').value, c = document.getElementById('svc-cat').value; if(!k || !n || !p) return showToast("Fill all fields", "error"); update(ref(db, 'settings/services_list/' + k), { name: n, price: parseInt(p), icon: i, category: c, active: true }).then(() => { showToast("Service Saved!"); document.getElementById('service-modal').style.display = 'none'; }); };
         window.toggleSvc = (k, s) => update(ref(db, `settings/services_list/${k}`), { active: s });
@@ -818,239 +690,48 @@
         window.saveFormConfig = () => { const k = document.getElementById('fe-service-select').value; if(!k) return showToast("Select Service first", "error"); const rows = document.querySelectorAll('#fe-fields-container > div'); const data = []; rows.forEach(r => { const l = r.querySelector('.fe-label').value; const t = r.querySelector('.fe-type').value; if(l) { let obj = { label: l, type: t }; if(t === 'radio_grid') obj.options = r.querySelector('.fe-options').value; data.push(obj); } }); set(ref(db, `settings/service_forms/${k}`), data).then(()=>showToast("Form Saved!")); };
         window.calcDisplayTotal = () => { let total = realOrdersCount + (parseInt(fakeSettings.base) || 0); if(fakeSettings.auto && fakeSettings.start_ts) { const now = Date.now(); const mins = (now - fakeSettings.start_ts) / (1000 * 60); total += Math.floor(mins); } document.getElementById('fake-display').innerText = total.toLocaleString(); };
         window.updateFakeCount = () => { const val = parseInt(document.getElementById('fake-inp').value); if(!val && val !== 0) return showToast("Enter a number", "error"); update(ref(db, 'settings/fake_counter'), { base: val }); showToast("Base Count Updated!"); };
-        window.toggleFakeAuto = () => { const isRunning = fakeSettings.auto; if (isRunning) { const now = Date.now(); const start = fakeSettings.start_ts || now; const minutesAdded = Math.floor((now - start) / (1000 * 60)); const currentBase = parseInt(fakeSettings.base) || 0; const newBase = currentBase + minutesAdded; update(ref(db, 'settings/fake_counter'), { auto: false, base: newBase, start_ts: null }); document.getElementById('fake-inp').value = newBase; showToast(`Stopped & Saved at: ${newBase}`); } else { update(ref(db, 'settings/fake_counter'), { auto: true, start_ts: Date.now() }); showToast("Auto Counter Started"); } };
+        window.toggleFakeAuto = () => { const isRunning = fakeSettings.auto; if (isRunning) { const now = Date.now(); const start = fakeSettings.start_ts || now; const minsAdded = Math.floor((now - start) / (1000 * 60)); const currentBase = parseInt(fakeSettings.base) || 0; const newBase = currentBase + minsAdded; update(ref(db, 'settings/fake_counter'), { auto: false, base: newBase, start_ts: null }); document.getElementById('fake-inp').value = newBase; showToast(`Stopped & Saved at: ${newBase}`); } else { update(ref(db, 'settings/fake_counter'), { auto: true, start_ts: Date.now() }); showToast("Auto Counter Started"); } };
         window.changeSystemStatus = (status) => { if(status === 'active') { if(confirm("Switch System to ONLINE?")) { update(ref(db, 'settings'), { system_status: 'active' }); showToast("System is now ONLINE"); } } else if(status === 'off') { if(prompt("Enter Code:") === OFF_CODE) { document.getElementById('offline-modal').style.display = 'flex'; } else { showToast("Wrong Code!", "error"); } } };
         window.openMaintModal = () => { if(prompt("Password:") === MAINT_PASS) { document.getElementById('maint-modal').style.display = 'flex'; } else { showToast("Wrong Password!", "error"); } };
         window.confirmMaint = () => { const hours = document.getElementById('maint-hours').value; const msg = document.getElementById('maint-msg').value; if (!hours && !msg) return showToast("Enter Time or Message", "error"); let d = { system_status: 'maintenance', maint_message: msg.trim() }; if (hours && !isNaN(hours) && hours.trim() !== "") { d.maint_type = 'timer'; d.maint_end_ts = Date.now() + (parseFloat(hours)*3600000); } else { d.maint_end_ts = null; } update(ref(db, 'settings'), d); document.getElementById('maint-modal').style.display='none'; showToast("Maintenance Started", "warning"); };
         window.confirmOffline = () => { const msg = document.getElementById('off-msg-inp').value.trim(); const defaultMsg = "System Offline..."; const finalMsg = msg || defaultMsg; update(ref(db, 'settings'), { system_status: 'off', off_message: finalMsg }).then(() => { document.getElementById('offline-modal').style.display = 'none'; showToast("System Turned OFF", "error"); }); };
         
-        // --- INVOICE GENERATOR ---
+        // --- INVOICE & PROOF ---
         window.showInfo = (k) => { 
-            const d = allOrdersData[k]; 
-            currentOrderInView = d; 
-            
+            const d = allOrdersData[k]; currentOrderInView = d; 
             if(d) { 
                 document.getElementById('inf-service').innerText = d.service; 
                 document.getElementById('inf-details').innerHTML = (d.details || "").replace(/\n/g, "<br>"); 
                 document.getElementById('inf-file').innerHTML = d.file ? `<a href="${d.file}" target="_blank" class="btn bg-blu">Open Link</a>` : "None"; 
-                
                 const invoiceControls = document.getElementById('invoice-controls');
                 const manualPriceInput = document.getElementById('manual-inv-price');
-
-                if (d.status === 'completed') {
-                    invoiceControls.style.display = 'block'; 
-                    let dbPrice = d.cost || d.price || d.amount || "";
-                    manualPriceInput.value = dbPrice;
-                } else {
-                    invoiceControls.style.display = 'none'; 
-                }
-
+                if (d.status === 'completed') { invoiceControls.style.display = 'block'; let dbPrice = d.cost || d.price || d.amount || ""; manualPriceInput.value = dbPrice; } else { invoiceControls.style.display = 'none'; }
                 document.getElementById('info-modal').style.display = 'flex'; 
             } 
         };
 
         window.downloadInvoice = () => {
             if(!currentOrderInView) return showToast("Order data missing!", "error");
-            
-            showToast("Generating PDF...");
-            const o = currentOrderInView;
-            const { jsPDF } = window.jspdf;
-
-            var manualVal = document.getElementById('manual-inv-price').value;
-            var finalAmt = 0;
-            if(manualVal && manualVal.trim() !== "") finalAmt = parseFloat(manualVal);
-            else if (o.cost) finalAmt = parseFloat(o.cost);
-            else if (o.price) finalAmt = parseFloat(o.price);
-            else if (o.amount) finalAmt = parseFloat(o.amount);
-            
+            showToast("Generating PDF..."); const o = currentOrderInView; const { jsPDF } = window.jspdf;
+            var manualVal = document.getElementById('manual-inv-price').value; var finalAmt = 0;
+            if(manualVal && manualVal.trim() !== "") finalAmt = parseFloat(manualVal); else if (o.cost) finalAmt = parseFloat(o.cost); else if (o.price) finalAmt = parseFloat(o.price); else if (o.amount) finalAmt = parseFloat(o.amount);
             const formattedPrice = "Tk " + finalAmt.toFixed(2);
-            const dateStr = new Date(o.timestamp).toLocaleDateString();
-            const orderId = "#" + (o.orderId_visible || o.orderId);
-            const userName = o.uName || "Guest User";
-            const uidShort = o.userId ? o.userId.substring(0,8)+"..." : "N/A";
-            const serviceName = o.service || "Service";
-            let desc = (o.details || "Service Order").substring(0, 80);
-            const signerName = o.handledBy || currentAdminName || "Administrator";
-
             const doc = new jsPDF();
-            doc.setTextColor(59, 130, 246); 
-            doc.setFontSize(22);
-            doc.setFont("helvetica", "bold");
-            doc.text("SILENT PORTAL", 15, 20);
-
-            doc.setTextColor(0, 0, 0); 
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text("Official Order Invoice", 15, 26);
-
-            doc.setFontSize(16);
-            doc.setFont("helvetica", "bold");
-            doc.text("INVOICE", 195, 20, { align: "right" });
-            
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Date: ${dateStr}`, 195, 26, { align: "right" });
-            doc.text(`Order ID: ${orderId}`, 195, 31, { align: "right" });
-
-            doc.setDrawColor(200, 200, 200);
-            doc.line(15, 36, 195, 36);
-
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "bold");
-            doc.text("Bill To:", 15, 45);
-            doc.setFont("helvetica", "normal");
-            doc.text(userName, 15, 51);
-            doc.setFontSize(9);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`UID: ${uidShort}`, 15, 56);
-
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "bold");
-            doc.text("Status:", 195, 45, { align: "right" });
-            doc.setDrawColor(0, 0, 0);
-            doc.rect(175, 48, 20, 7); 
-            doc.setFontSize(10);
-            doc.text("PAID", 185, 53, { align: "center" });
-
-            doc.autoTable({
-                startY: 65,
-                head: [['Description', 'Service Type', 'Amount']],
-                body: [[desc, serviceName, formattedPrice]],
-                theme: 'striped',
-                headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold' },
-                styles: { textColor: [0, 0, 0] },
-                columnStyles: { 2: { halign: 'right', fontStyle: 'bold' } }
-            });
-
-            const finalY = doc.lastAutoTable.finalY + 10;
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.text("TOTAL", 150, finalY);
-            doc.setFontSize(14);
-            doc.text(formattedPrice, 195, finalY, { align: "right" });
-
-            const pageHeight = doc.internal.pageSize.height;
-            const footerY = pageHeight - 40;
-
-            doc.setDrawColor(59, 130, 246);
-            doc.setLineWidth(0.5);
-            doc.line(15, footerY, 70, footerY); 
-
-            doc.setFont("times", "italic");
-            doc.setFontSize(16);
-            doc.setTextColor(59, 130, 246); 
-            doc.text(signerName, 42, footerY - 5, { align: "center" });
-
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(8);
-            doc.setTextColor(100, 100, 100);
-            doc.text("Authorized Signature", 42, footerY + 5, { align: "center" });
-            doc.text("Digitally Approved", 42, footerY + 9, { align: "center" });
-
-            doc.text("Thank you for your business!", 195, footerY + 15, { align: "right" });
-            doc.text("Generated by Silent Portal System", 195, footerY + 19, { align: "right" });
-
-            doc.save(`Invoice_${o.orderId_visible || 'Order'}.pdf`);
-            showToast("Invoice Downloaded!");
+            doc.setFontSize(22); doc.text("SILENT PORTAL", 15, 20); doc.setFontSize(10); doc.text("Order Invoice", 15, 26);
+            doc.text(`Order ID: #${o.orderId_visible}`, 195, 31, { align: "right" });
+            doc.text(`User: ${o.uName}`, 15, 51);
+            doc.autoTable({ startY: 65, head: [['Service', 'Amount']], body: [[o.service, formattedPrice]] });
+            doc.save(`Invoice.pdf`); showToast("Downloaded!");
         };
 
         window.downloadDepositInvoice = (key) => {
-            const d = allDepositsData[key];
-            if(!d) return showToast("Data not found", "error");
-
-            showToast("Generating Receipt...");
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
+            const d = allDepositsData[key]; if(!d) return showToast("Data not found", "error");
+            showToast("Generating Receipt..."); const { jsPDF } = window.jspdf; const doc = new jsPDF();
             const formattedPrice = "Tk " + (d.amount || 0);
-            let dateStr = "N/A";
-            if(d.timestamp) dateStr = new Date(d.timestamp).toLocaleDateString();
-            else dateStr = new Date().toLocaleDateString(); 
-
-            const trxId = d.trxId || "N/A";
-            const userName = d.uName || "User";
-            const uidShort = d.uid ? d.uid.substring(0,8)+"..." : "N/A";
-            const signerName = d.handledBy || currentAdminName || "Administrator";
-
-            doc.setTextColor(59, 130, 246);
-            doc.setFontSize(22);
-            doc.setFont("helvetica", "bold");
-            doc.text("SILENT PORTAL", 15, 20);
-
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text("Official Deposit Receipt", 15, 26);
-
-            doc.setFontSize(16);
-            doc.setFont("helvetica", "bold");
-            doc.text("RECEIPT", 195, 20, { align: "right" });
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Date: ${dateStr}`, 195, 26, { align: "right" });
-
-            doc.setDrawColor(200, 200, 200);
-            doc.line(15, 36, 195, 36);
-
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "bold");
-            doc.text("Received From:", 15, 45);
-            doc.setFont("helvetica", "normal");
-            doc.text(userName, 15, 51);
-            doc.setFontSize(9);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`UID: ${uidShort}`, 15, 56);
-            if(d.accMobile) doc.text(`Mobile: ${d.accMobile}`, 15, 61);
-
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "bold");
-            doc.text("Status:", 195, 45, { align: "right" });
-            doc.setDrawColor(0, 0, 0);
-            doc.rect(175, 48, 20, 7);
-            doc.setFontSize(10);
-            doc.text("PAID", 185, 53, { align: "center" });
-
-            doc.autoTable({
-                startY: 70,
-                head: [['Description', 'Transaction ID', 'Amount']],
-                body: [["Wallet Deposit", trxId, formattedPrice]],
-                theme: 'striped',
-                headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold' },
-                styles: { textColor: [0, 0, 0] },
-                columnStyles: { 2: { halign: 'right', fontStyle: 'bold' } }
-            });
-
-            const finalY = doc.lastAutoTable.finalY + 10;
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.text("TOTAL RECEIVED", 140, finalY);
-            doc.setFontSize(14);
-            doc.text(formattedPrice, 195, finalY, { align: "right" });
-
-            const pageHeight = doc.internal.pageSize.height;
-            const footerY = pageHeight - 40;
-
-            doc.setDrawColor(59, 130, 246);
-            doc.setLineWidth(0.5);
-            doc.line(15, footerY, 70, footerY); 
-
-            doc.setFont("times", "italic");
-            doc.setFontSize(16);
-            doc.setTextColor(59, 130, 246); 
-            doc.text(signerName, 42, footerY - 5, { align: "center" });
-
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(8);
-            doc.setTextColor(100, 100, 100);
-            doc.text("Authorized Signature", 42, footerY + 5, { align: "center" });
-            doc.text("Digitally Approved", 42, footerY + 9, { align: "center" });
-
-            doc.text("Generated by Silent Portal System", 195, footerY + 19, { align: "right" });
-
-            doc.save(`Receipt_${trxId}.pdf`);
-            showToast("Receipt Downloaded!");
+            doc.setFontSize(22); doc.text("SILENT PORTAL", 15, 20); doc.setFontSize(10); doc.text("Deposit Receipt", 15, 26);
+            doc.text(`TRX: ${d.trxId}`, 195, 31, { align: "right" }); doc.text(`User: ${d.uName}`, 15, 51);
+            doc.autoTable({ startY: 70, head: [['Method', 'Amount']], body: [["Deposit", formattedPrice]] });
+            doc.save(`Receipt.pdf`); showToast("Downloaded!");
         };
 
         window.copyFullOrderInfo = () => { const s = document.getElementById('inf-service').innerText; const d = document.getElementById('inf-details').innerText; const f = document.getElementById('inf-file').innerText; copyToClip(`Service: ${s}\nDetails: ${d}\nLink: ${f}`); };
@@ -1060,29 +741,12 @@
         window.openBalanceModal = (uid, name, currentBal) => { currentBalanceEditUid = uid; document.getElementById('bal-edit-uname').innerText = name; document.getElementById('bal-edit-input').value = currentBal; document.getElementById('balance-modal').style.display = 'flex'; };
         window.submitBalanceUpdate = () => { const newBal = Number(document.getElementById('bal-edit-input').value); if(newBal < 0 || isNaN(newBal)) return showToast("Invalid Amount", "error"); if(currentBalanceEditUid) { update(ref(db, 'users/' + currentBalanceEditUid), { balance: newBal }).then(() => { showToast("Balance Updated Successfully"); document.getElementById('balance-modal').style.display = 'none'; }).catch(err => showToast(err.message, "error")); } };
         window.toggleVerify = (uid, status) => { update(ref(db, 'users/' + uid), { isVerified: status }).then(() => showToast(status ? "User Verified!" : "Badge Removed")).catch(err => showToast(err.message, "error")); };
-        window.chat = (k) => { 
-            activeChat = k; document.getElementById('chat-modal').style.display = 'flex'; document.getElementById('chat-msgs').innerHTML = '<div style="text-align:center;color:#94a3b8;margin-top:20px;">Loading chat...</div>';
-            onValue(ref(db, 'chats/'+k), s => {
-                const msgs = document.getElementById('chat-msgs'); msgs.innerHTML = "";
-                s.forEach(c => {
-                    const m = c.val(); const isMe = (m.s !== allOrdersData[k]?.userId);
-                    let align = isMe ? 'flex-end' : 'flex-start'; let bg = isMe ? '#3b82f6' : '#1e293b'; let safeText = m.t.replace(/'/g, "\\'");
-                    msgs.innerHTML += `<div style="display:flex; justify-content:${align}; margin-bottom:10px; align-items:center;"><div style="background:${bg}; padding:8px 12px; border-radius:15px; max-width:80%; font-size:13px; color:white; position:relative;">${m.t}<i class="fas fa-copy msg-copy-icon" onclick="copyToClip('${safeText}')" title="Copy"></i></div></div>`;
-                });
-                msgs.scrollTop = msgs.scrollHeight;
-            });
-        };
+        window.chat = (k) => { activeChat = k; document.getElementById('chat-modal').style.display = 'flex'; document.getElementById('chat-msgs').innerHTML = '<div style="text-align:center;color:#94a3b8;margin-top:20px;">Loading chat...</div>'; onValue(ref(db, 'chats/'+k), s => { const msgs = document.getElementById('chat-msgs'); msgs.innerHTML = ""; s.forEach(c => { const m = c.val(); const isMe = (m.s !== allOrdersData[k]?.userId); let align = isMe ? 'flex-end' : 'flex-start'; let bg = isMe ? '#3b82f6' : '#1e293b'; let safeText = m.t.replace(/'/g, "\\'"); msgs.innerHTML += `<div style="display:flex; justify-content:${align}; margin-bottom:10px; align-items:center;"><div style="background:${bg}; padding:8px 12px; border-radius:15px; max-width:80%; font-size:13px; color:white; position:relative;">${m.t}<i class="fas fa-copy msg-copy-icon" onclick="copyToClip('${safeText}')" title="Copy"></i></div></div>`; }); msgs.scrollTop = msgs.scrollHeight; }); };
         window.sendRep = (txt=null) => { const t = txt || document.getElementById('chat-in').value; if(t && activeChat) { push(ref(db, 'chats/'+activeChat), { s: currentAdminName, t: t }); document.getElementById('chat-in').value = ""; } };
         window.proc = (k) => update(ref(db, 'orders/'+k), { status: 'processing', handledBy: currentAdminName });
         window.comp = (k, uid) => { if(confirm("Mark as Completed?")) { update(ref(db, 'orders/'+k), { status: 'completed', handledBy: currentAdminName, completed_at: Date.now() }); } };
         window.openCancelModal = (k) => { currentCancelOrderId = k; document.getElementById('cancel-modal').style.display='flex'; };
-        window.submitCancel = () => {
-            const reason = document.getElementById('cancel-reason').value; const refund = document.getElementById('cancel-refund-check').checked;
-            if(!reason) return showToast("Enter reason", "error"); const order = allOrdersData[currentCancelOrderId];
-            update(ref(db, 'orders/'+currentCancelOrderId), { status: 'cancelled', admin_note: reason, handledBy: currentAdminName }).then(async () => {
-                if(refund && order && order.cost) { const userRef = ref(db, 'users/'+order.userId); const snap = await get(userRef); if(snap.exists()) { const curBal = snap.val().balance || 0; await update(userRef, { balance: curBal + Number(order.cost) }); showToast("Order Cancelled & Refunded"); } } else { showToast("Order Cancelled"); } document.getElementById('cancel-modal').style.display='none';
-            });
-        };
+        window.submitCancel = () => { const reason = document.getElementById('cancel-reason').value; const refund = document.getElementById('cancel-refund-check').checked; if(!reason) return showToast("Enter reason", "error"); const order = allOrdersData[currentCancelOrderId]; update(ref(db, 'orders/'+currentCancelOrderId), { status: 'cancelled', admin_note: reason, handledBy: currentAdminName }).then(async () => { if(refund && order && order.cost) { const userRef = ref(db, 'users/'+order.userId); const snap = await get(userRef); if(snap.exists()) { const curBal = snap.val().balance || 0; await update(userRef, { balance: curBal + Number(order.cost) }); showToast("Order Cancelled & Refunded"); } } else { showToast("Order Cancelled"); } document.getElementById('cancel-modal').style.display='none'; }); };
         window.modUser = (key, status) => { if(confirm("Change user status to " + status + "?")) { update(ref(db, 'users/'+key), { status: status }).then(()=>showToast("User updated")); } };
         window.openBanModal = (key) => { currentBanUserId = key; document.getElementById('ban-modal').style.display='flex'; };
         window.submitBan = () => { const r = document.getElementById('ban-reason-input').value; if(!r) return showToast("Enter reason", "error"); update(ref(db, 'users/'+currentBanUserId), { status: 'banned', ban_reason: r }).then(()=>{ document.getElementById('ban-modal').style.display='none'; showToast("User Banned"); }); };
@@ -1091,4 +755,3 @@
     </script>
 </body>
 </html>
-
