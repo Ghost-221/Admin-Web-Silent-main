@@ -93,7 +93,6 @@
         .msg-copy-icon { margin-left: 8px; font-size: 12px; opacity: 0.5; cursor: pointer; color: white; transition: 0.2s; }
         .msg-copy-icon:hover { opacity: 1; transform: scale(1.1); }
         
-        /* --- NEW STYLES FOR CATEGORY TABS --- */
         .category-tabs-container { display:flex; gap:10px; overflow-x:auto; padding:5px 0 15px; white-space:nowrap; -webkit-overflow-scrolling: touch; }
         .cat-tab { padding:8px 16px; border-radius:30px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); cursor:pointer; font-size:12px; font-weight:600; transition:0.3s; }
         .cat-tab.active { background:var(--primary); color:white; border-color:var(--primary); box-shadow:0 4px 10px rgba(59,130,246,0.3); }
@@ -157,11 +156,11 @@
                 <option value="" disabled selected>Select Role...</option>
                 <option value="HELIX PANEL" style="color:var(--primary); font-weight:bold;">HELIX PANEL</option>
                 <option value="Developer" style="color:var(--danger); font-weight:bold;">Developer</option>
-                <option value="HOST 1">Moderator 1</option>
-                <option value="HOST 2">Moderator 2</option>
-                <option value="HOST 3">Moderator 3</option>
-                <option value="HOST 4">Moderator 4</option>
-                <option value="HOST 5">Moderator 5</option>
+                <option value="Moderator 1">HOST 1</option>
+                <option value="Moderator 2">HOST 2</option>
+                <option value="Moderator 3">HOST 3</option>
+                <option value="Moderator 4">HOST 4</option>
+                <option value="Moderator 5">HOST 5</option>
             </select>
             <input id="ae" class="modal-inp" placeholder="Email Address">
             <input id="ap" class="modal-inp" type="password" placeholder="Password">
@@ -172,7 +171,7 @@
     
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="brand"><h3>SILENT-ADMIN</h3></div>
+        <div class="brand"><h3>SILENT</h3></div>
         <div class="nav-menu">
             <div class="nav-item active" onclick="setView('dash', this)"><i class="fas fa-chart-pie"></i> Dashboard</div>
             <div id="nav-services" class="nav-item" onclick="setView('services', this)"><i class="fas fa-th-large"></i> Services</div>
@@ -304,13 +303,17 @@
         <div id="bal" class="view"><div class="table-wrapper"><div class="table-header">Deposit Requests</div><div class="table-scroll"><table id="table-deposits"><thead><tr><th>User / Mobile</th><th>TRX ID</th><th>Amount</th><th>Proof</th><th>Status</th><th style="text-align:center;">Actions</th></tr></thead><tbody id="bal-list"></tbody></table></div></div></div>
         <div id="users" class="view"><div class="table-wrapper"><div class="table-header">User Database</div><div class="table-scroll"><table id="table-users"><thead><tr><th>Name</th><th>Contact</th><th>Telegram</th><th>Email</th><th>Balance</th><th>Status</th><th style="text-align:center;">Actions</th></tr></thead><tbody id="usr-list"></tbody></table></div></div></div>
         
-        <!-- DEV CONTROL -->
+        <!-- DEV CONTROL (UPDATED) -->
         <div id="dev-ctrl" class="view">
             <div class="stats-grid">
                 <div class="card" style="border-color: var(--danger); background: linear-gradient(145deg, #3f0909, #1e293b);">
                     <h4 style="color:var(--danger)">Surveillance Mode (LOCKDOWN)</h4>
                     <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;"><b>STATUS:</b> <span id="dev-status-text">Inactive</span></p>
-                    <div class="simple-ctrl"><input id="dev-code-inp" class="simple-inp" type="password" placeholder="Type: dev_surveillance_on"><button id="btn-dev-start" class="btn bg-red" onclick="toggleSurveillance(true)" style="width:100%">START SURVEILLANCE</button><button id="btn-dev-stop" class="btn bg-grn" onclick="toggleSurveillance(false)" style="width:100%; display:none;">STOP & UNLOCK</button></div>
+                    <div class="simple-ctrl">
+                        <input id="dev-code-inp" class="simple-inp" type="password" placeholder="Type: surveillance_on">
+                        <button id="btn-dev-start" class="btn bg-red" onclick="toggleSurveillance(true)" style="width:100%">START SURVEILLANCE</button>
+                        <button id="btn-dev-stop" class="btn bg-grn" onclick="toggleSurveillance(false)" style="width:100%; display:none;">STOP & UNLOCK</button>
+                    </div>
                 </div>
 
                 <!-- ADD NEW ROLE SECTION -->
@@ -415,7 +418,7 @@
         
         const fixedRoles = ["HELIX PANEL", "Developer", "Moderator 1", "Moderator 2", "Moderator 3", "Moderator 4", "Moderator 5"];
 
-        let DEV_MASTER_CODE = "dev_master"; const DEV_SURVEILLANCE_CODE = "dev_surveillance_on";
+        let DEV_MASTER_CODE = "dev_master"; const DEV_SURVEILLANCE_CODE = "on";
         const OFF_CODE = "258025", MAINT_PASS = "devloper001";
         
         let rolePasscodes = {};
@@ -525,10 +528,38 @@
             });
 
             onValue(ref(db, 'settings/security_codes'), (s) => { rolePasscodes = s.val() || {}; DEV_MASTER_CODE = rolePasscodes['Developer'] || "dev_master"; });
+            
+            // --- UPDATED SURVEILLANCE LOGIC ---
             onValue(ref(db, 'settings/dev_surveillance'), (s) => { 
                 const isLocked = s.val() === true; 
                 const overlay = document.getElementById('dev-surveillance-overlay'); 
-                document.getElementById('dev-status-text').innerText = isLocked ? "ACTIVE (Locked)" : "Inactive";
+                const statusText = document.getElementById('dev-status-text');
+                const btnStart = document.getElementById('btn-dev-start');
+                const btnStop = document.getElementById('btn-dev-stop');
+                const codeInp = document.getElementById('dev-code-inp');
+                
+                // Status Text
+                if(statusText) {
+                    statusText.innerText = isLocked ? "ACTIVE (Locked)" : "Inactive";
+                    statusText.style.color = isLocked ? "#10b981" : "#94a3b8"; 
+                }
+
+                // Button Toggle
+                if(btnStart && btnStop && codeInp) {
+                    if(isLocked) {
+                        // If active: Hide Start, Show Stop, Hide Input (Optional)
+                        btnStart.style.display = 'none';
+                        btnStop.style.display = 'block';
+                        codeInp.style.display = 'none'; 
+                    } else {
+                        // If inactive: Show Start, Hide Stop, Show Input
+                        btnStart.style.display = 'block';
+                        btnStop.style.display = 'none';
+                        codeInp.style.display = 'block';
+                        codeInp.value = ""; // Clear input
+                    }
+                }
+
                 if (isLocked && currentAdminName !== 'Developer') overlay.style.display = 'flex'; else overlay.style.display = 'none'; 
             });
 
@@ -600,7 +631,27 @@
 
         window.backupDB = async () => { if(!confirm("Download backup?")) return; try { showToast("Preparing..."); const snap = await get(ref(db, '/')); const blob = new Blob([JSON.stringify(snap.val(), null, 2)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); showToast("Started!"); } catch(e) { showToast("Failed: " + e.message, "error"); } };
         window.sendGlobalAlert = () => { const msg = document.getElementById('global-alert-text').value.trim(); if(!msg) return showToast("Enter message", "error"); update(ref(db, 'settings/global_alert'), { message: msg, timestamp: Date.now(), active: true }).then(() => { showToast("Alert Sent!"); document.getElementById('global-alert-text').value = ""; }); };
-        window.toggleSurveillance = (turnOn) => { const code = document.getElementById('dev-code-inp').value; if(turnOn) { if(code === DEV_SURVEILLANCE_CODE) { update(ref(db, 'settings'), { dev_surveillance: true }); showToast("ACTIVATED"); document.getElementById('dev-code-inp').value = ""; } else { showToast("Wrong Code!", "error"); } } else { update(ref(db, 'settings'), { dev_surveillance: false }); showToast("DEACTIVATED"); } };
+        
+        // --- UPDATED SURVEILLANCE TOGGLE FUNCTION ---
+        window.toggleSurveillance = (turnOn) => { 
+            const code = document.getElementById('dev-code-inp').value; 
+            if(turnOn) { 
+                if(code === DEV_SURVEILLANCE_CODE) { 
+                    update(ref(db, 'settings'), { dev_surveillance: true }); 
+                    showToast("Surveillance Mode ACTIVATED"); 
+                    document.getElementById('dev-code-inp').value = ""; 
+                } else { 
+                    showToast("Wrong Code!", "error"); 
+                } 
+            } else { 
+                // Simplified OFF logic: Just confirm, no code needed for Dev to stop
+                if(confirm("Stop Surveillance and Unlock System?")) {
+                    update(ref(db, 'settings'), { dev_surveillance: false }); 
+                    showToast("Surveillance Mode DEACTIVATED"); 
+                }
+            } 
+        };
+
         window.banAdminByEmail = () => { const email = document.getElementById('ban-admin-email').value.trim(); if(!email) return showToast("Enter email", "error"); push(ref(db, 'settings/banned_admins'), email).then(() => { showToast("Banned: " + email); document.getElementById('ban-admin-email').value = ""; }); };
         window.unbanAdmin = (key) => { if(confirm("Unban?")) { remove(ref(db, `settings/banned_admins/${key}`)).then(() => showToast("Unbanned")); } };
         window.openQrManager = () => { document.getElementById('qr-manager-modal').style.display = 'flex'; renderQrEditList(); };
@@ -609,20 +660,15 @@
         window.removeQr = (idx) => { if(!confirm("Delete?")) return; update(ref(db, 'settings'), { quick_replies: quickReplies.filter((_, i) => i !== idx) }); };
         function renderQrEditList() { const list = document.getElementById('qr-list-edit'); list.innerHTML = ""; quickReplies.forEach((text, index) => { if(text) { list.innerHTML += `<div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:12px;">${text}</span><button class="btn bg-red" style="padding:2px 6px; font-size:10px;" onclick="removeQr(${index})"><i class="fas fa-trash"></i></button></div>`; } }); }
         
-        // --- NEW: Render Category Tabs ---
         window.renderServiceCategoryTabs = () => {
             const container = document.getElementById('admin-svc-cat-filter');
             if(!container) return;
             container.innerHTML = "";
-            
-            // Add "All" Tab
             const allBtn = document.createElement('button');
             allBtn.className = `cat-tab ${currentServiceCategoryFilter === 'All' ? 'active' : ''}`;
             allBtn.innerText = "All";
             allBtn.onclick = () => { currentServiceCategoryFilter = 'All'; renderServiceCategoryTabs(); renderServiceTable(); };
             container.appendChild(allBtn);
-
-            // Add Actual Categories
             Object.entries(globalCategories).forEach(([key, name]) => {
                 const btn = document.createElement('button');
                 btn.className = `cat-tab ${currentServiceCategoryFilter === name ? 'active' : ''}`;
@@ -630,8 +676,6 @@
                 btn.onclick = () => { currentServiceCategoryFilter = name; renderServiceCategoryTabs(); renderServiceTable(); };
                 container.appendChild(btn);
             });
-
-             // Add "Others" Tab
              const otherBtn = document.createElement('button');
              otherBtn.className = `cat-tab ${currentServiceCategoryFilter === 'Others' ? 'active' : ''}`;
              otherBtn.innerText = "Others";
@@ -641,7 +685,6 @@
 
         window.renderCategoryTable = () => { const tbody = document.getElementById('cat-list-body'); const svcSelect = document.getElementById('svc-cat'); tbody.innerHTML = ""; svcSelect.innerHTML = "<option value='Others'>Others</option>"; Object.entries(globalCategories).forEach(([key, name]) => { tbody.innerHTML += `<tr><td>${name}</td><td style="text-align:right;"><button class="btn bg-dark" onclick="editCategory('${key}', '${name.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i></button><button class="btn bg-red" onclick="delCategory('${key}')"><i class="fas fa-trash"></i></button></td></tr>`; svcSelect.innerHTML += `<option value="${name}">${name}</option>`; }); };
         
-        // --- UPDATED: Render Service Table with Category Filter ---
         window.renderServiceTable = () => { 
             const l = document.getElementById('svc-list'); l.innerHTML = ""; 
             const sel = document.getElementById('fe-service-select'); sel.innerHTML = '<option value="" disabled selected>Select Service...</option>'; 
@@ -649,22 +692,11 @@
             const thStatus = document.getElementById('th-status'); const thActions = document.getElementById('th-actions'); 
             if(thStatus) thStatus.style.display = isSuperOrDev ? '' : 'none'; 
             if(thActions) thActions.style.display = isSuperOrDev ? '' : 'none'; 
-            
-            // Get valid categories to check against "Others"
             const validCategories = Object.values(globalCategories);
-
             Object.entries(globalServices).forEach(([key, svc]) => { 
-                // FILTER LOGIC
                 if (currentServiceCategoryFilter !== 'All') {
-                    if (currentServiceCategoryFilter === 'Others') {
-                         // Show if category is missing OR not in the valid list
-                         if (svc.category && validCategories.includes(svc.category)) return;
-                    } else {
-                         // Strict match
-                         if (svc.category !== currentServiceCategoryFilter) return;
-                    }
+                    if (currentServiceCategoryFilter === 'Others') { if (svc.category && validCategories.includes(svc.category)) return; } else { if (svc.category !== currentServiceCategoryFilter) return; }
                 }
-
                 const checked = svc.active !== false ? 'checked' : ''; 
                 let statusToggle = isSuperOrDev ? `<label class="switch"><input type="checkbox" ${checked} onchange="toggleSvc('${key}', this.checked)"><span class="slider"></span></label>` : ''; 
                 let actionButtons = isSuperOrDev ? `<div style="display:flex;gap:5px;"><button class="btn bg-dark" onclick="openServiceModal('${key}')"><i class="fas fa-edit"></i></button><button class="btn bg-red" onclick="delSvc('${key}')"><i class="fas fa-trash"></i></button></div>` : ''; 
@@ -696,7 +728,6 @@
         window.confirmMaint = () => { const hours = document.getElementById('maint-hours').value; const msg = document.getElementById('maint-msg').value; if (!hours && !msg) return showToast("Enter Time or Message", "error"); let d = { system_status: 'maintenance', maint_message: msg.trim() }; if (hours && !isNaN(hours) && hours.trim() !== "") { d.maint_type = 'timer'; d.maint_end_ts = Date.now() + (parseFloat(hours)*3600000); } else { d.maint_end_ts = null; } update(ref(db, 'settings'), d); document.getElementById('maint-modal').style.display='none'; showToast("Maintenance Started", "warning"); };
         window.confirmOffline = () => { const msg = document.getElementById('off-msg-inp').value.trim(); const defaultMsg = "System Offline..."; const finalMsg = msg || defaultMsg; update(ref(db, 'settings'), { system_status: 'off', off_message: finalMsg }).then(() => { document.getElementById('offline-modal').style.display = 'none'; showToast("System Turned OFF", "error"); }); };
         
-        // --- INVOICE & PROOF ---
         window.showInfo = (k) => { 
             const d = allOrdersData[k]; currentOrderInView = d; 
             if(d) { 
