@@ -378,20 +378,20 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, inMemoryPersistence, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        // UPDATED: Imported browserLocalPersistence
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
         import { getDatabase, ref, onValue, update, set, get, push, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
         const firebaseConfig = { apiKey: "AIzaSyB85E2DgcncPuUdY2TsiuULsXQJnzSo918", authDomain: "info-website-cb-24.firebaseapp.com", databaseURL: "https://info-website-cb-24-default-rtdb.firebaseio.com", projectId: "info-website-cb-24", storageBucket: "info-website-cb-24.firebasestorage.app", messagingSenderId: "625209481840", appId: "1:625209481840:web:534708ecc93ec66223b2b5" };
         const app = initializeApp(firebaseConfig, "AdminPanel");
         const auth = getAuth(app);
         
-        setPersistence(auth, inMemoryPersistence); 
+        // --- FIXED: Set Persistence to Local (Remembers Session) ---
+        setPersistence(auth, browserLocalPersistence); 
 
         const db = getDatabase(app);
         
-        // --- DISABLE AUTO LOGIN (Force Logout on Refresh) ---
-        signOut(auth).catch(e => console.log(e));
-        sessionStorage.clear();
+        // --- REMOVED: Auto logout signOut(auth) ---
 
         // --- 7 FIXED ROLES DEFINED HERE ---
         const fixedRoles = ["HELIX PANEL", "Developer", "Moderator 1", "Moderator 2", "Moderator 3", "Moderator 4", "Moderator 5"];
@@ -408,16 +408,13 @@
         let globalServices = {}, globalServiceForms = {}, globalCategories = {}, quickReplies = [];
         let currentRejectBalKey = null, currentBanUserId = null, currentCancelOrderId = null, currentBalanceEditUid = null;
         let currentOrderInView = null; 
-        let sessionTimer;
-        const TIMEOUT_DURATION = 10 * 60 * 1000; 
+        
+        // Removed Session Timer Logic as persistence is now active
 
         window.showToast = (msg, type = 'success') => { const box = document.getElementById('toast-box'); const el = document.createElement('div'); el.className = `toast ${type}`; el.innerHTML = `<span>${msg}</span>`; box.appendChild(el); setTimeout(() => el.remove(), 3500); };
         window.copyToClip = (text) => { const tempInput = document.createElement("textarea"); tempInput.value = text; document.body.appendChild(tempInput); tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput); showToast("Copied to Clipboard!"); };
         window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); };
         window.setView = (v,el) => { document.querySelectorAll('.view').forEach(x=>x.classList.remove('active')); document.getElementById(v).classList.add('active'); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); el.classList.add('active'); if(window.innerWidth <= 768) window.toggleSidebar(); };
-
-        function resetSessionTimer() { clearTimeout(sessionTimer); if(auth.currentUser) { sessionTimer = setTimeout(() => { alert("Session Timeout: You have been logged out due to inactivity."); window.logout(); }, TIMEOUT_DURATION); } }
-        ['mousemove', 'mousedown', 'keypress', 'touchmove', 'click'].forEach(evt => { document.addEventListener(evt, resetSessionTimer); });
 
         // --- INTERNET CONNECTION CHECKER ---
         function checkNetworkStatus() {
@@ -497,14 +494,15 @@
                 const isBanned = Object.values(bannedList).some(bannedEmail => bannedEmail === e); 
                 if(isBanned) throw new Error("ACCESS DENIED: You are banned.");
                 
-                await setPersistence(auth, inMemoryPersistence); 
+                // Persistence is handled by setPersistence earlier
                 await signInWithEmailAndPassword(auth, e, p); 
                 await update(ref(db, 'settings/admin_map/' + selectedRole), { email: e, ip: userIp, last_login: Date.now() });
                 
                 currentAdminName = selectedRole; 
-                sessionStorage.setItem('adminName', currentAdminName); 
+                // --- ADDED: SAVE ROLE TO LOCAL STORAGE ---
+                localStorage.setItem('savedAdminRole', currentAdminName);
+
                 updateAdminDisplay(); 
-                resetSessionTimer(); 
                 showToast("Welcome back, " + currentAdminName); 
 
                 if(currentAdminName === 'Developer') {
@@ -517,8 +515,26 @@
             } 
         };
         
-        onAuthStateChanged(auth, u => { if(u) { document.getElementById('login-overlay').style.display='none'; currentAdminName = sessionStorage.getItem('adminName') || "Admin"; updateAdminDisplay(); init(); resetSessionTimer(); } else { document.getElementById('login-overlay').style.display='flex'; togglePasscodeField(); clearTimeout(sessionTimer); } });
-        window.logout = () => signOut(auth).then(()=>location.reload());
+        onAuthStateChanged(auth, u => { 
+            if(u) { 
+                document.getElementById('login-overlay').style.display='none'; 
+                // --- FIXED: RESTORE ROLE FROM LOCAL STORAGE ---
+                if(!currentAdminName || currentAdminName === "Admin") {
+                    currentAdminName = localStorage.getItem('savedAdminRole') || "Admin";
+                }
+                updateAdminDisplay(); 
+                init(); 
+            } else { 
+                document.getElementById('login-overlay').style.display='flex'; 
+                // togglePasscodeField(); 
+            } 
+        });
+
+        window.logout = () => {
+            // Clear local storage
+            localStorage.removeItem('savedAdminRole');
+            signOut(auth).then(()=>location.reload());
+        };
 
         function init() {
             // --- LOAD DYNAMIC ROLES ---
